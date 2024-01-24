@@ -1,12 +1,12 @@
 # Dataset for "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
 
-# Authors:
+## Authors:
 Haya Deeb, Tomasz Zielinski, Andrew Millar. 
 
-*For correspondence: 
+*For correspondence:* 
 -------------------------------------------------------------------
 
-# General Information
+## General Information
 
 1. Abstract: 
 
@@ -21,11 +21,11 @@ Before reusing the data, please review the accompanying variable descriptions an
 
 #Dataset Folder/File Overview
 
-|-- Biosciences Publication Dataset
-|   |--Biosciences_Publications_Dataset_2024.xlsx
-|   |--Biosciences_Publications_Dataset_2024.csv
-|-- Biosciences_Project_RMarkdown_Code_Version1.Rmd
-|-- Supplementary_Material_Biosciences_Project.pdf
+|-- Biosciences Publication Dataset  
+|   |--Biosciences_Publications_Dataset_2024.xlsx  
+|   |--Biosciences_Publications_Dataset_2024.csv  
+|-- Biosciences_Project_RMarkdown_Code_Version1.Rmd  
+|-- Supplementary_Material_Biosciences_Project.pdf  
 
 -------------------------------------------------------------------
 
@@ -45,26 +45,26 @@ The CSV file is derived from Sheet 1 of the Excel file and was imported into RSt
 -Variable Descriptions
 The dataset comprises the following variables:
 
-Variable----------------Description -(Format)
+Variable----------------Description -(Format)  
 
-Title----------The title of the article	-(Text)
-DOI------------Digital Object Identifier for the article -(Alphanumeric)
-ResGrp---------The research group or principal investigator's surname- (Text)
-TypE-----------The type of disease studied (NCD or InfD)- (Categorical)
-Institution----The institution of the research group- (Text)
-Journal--------The journal in which the article was published -(Text)
-Year-----------The publication year of the article -(Numeric)
-AnalysisPgrm---Indicates if analysis software is stated (1) or not (0) -(Binary)
-CodeArchived---Indicates if the analysis code is archived (1) or not (0); NA if not applicable -(Binary/NA)
-DAS------------Data Availability Statement presence and type -(Binary/NA)
-CorresAuthor---Indicates if the group leader is a corresponding author (1) or not (0) -(Binary)
-Preprints------Indicates if a preprint was shared (1) or not (0) -(Binary)
-Complete-------Completeness score of the data and metadata -(Numeric 1-4)
-Reuse----------Reusability score of the data -(Numeric 1-4)
-Access---------Accessibility score of the data	-(Numeric 1-4)
-Licence--------Clarity and accessibility of the data usage license -(Numeric 1-4)
-Image----------Image data sharing status -(Binary/NA)
-Genomics-------Genomic data sharing status -(Binary/NA)
+Title----------The title of the article	-(Text)  
+DOI------------Digital Object Identifier for the article -(Alphanumeric)  
+ResGrp---------The research group or principal investigator's surname- (Text)  
+TypE-----------The type of disease studied (NCD or InfD)- (Categorical)  
+Institution----The institution of the research group- (Text)  
+Journal--------The journal in which the article was published -(Text)  
+Year-----------The publication year of the article -(Numeric)  
+AnalysisPgrm---Indicates if analysis software is stated (1) or not (0) -(Binary)  
+CodeArchived---Indicates if the analysis code is archived (1) or not (0); NA if not applicable -(Binary/NA)  
+DAS------------Data Availability Statement presence and type -(Binary/NA)  
+CorresAuthor---Indicates if the group leader is a corresponding author (1) or not (0) -(Binary)  
+Preprints------Indicates if a preprint was shared (1) or not (0) -(Binary)  
+Complete-------Completeness score of the data and metadata -(Numeric 1-4)  
+Reuse----------Reusability score of the data -(Numeric 1-4)  
+Access---------Accessibility score of the data	-(Numeric 1-4)  
+Licence--------Clarity and accessibility of the data usage license -(Numeric 1-4)  
+Image----------Image data sharing status -(Binary/NA)  
+Genomics-------Genomic data sharing status -(Binary/NA)  
 
 
 2. Biosciences Project - RMarkdown Code
