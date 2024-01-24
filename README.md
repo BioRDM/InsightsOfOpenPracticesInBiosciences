@@ -42,7 +42,7 @@ Sheet 2 (Variable Descriptions): Provides a detailed explanation of each variabl
 -CSV File
 The CSV file is derived from Sheet 1 of the Excel file and was imported into RStudio for analysis.
 
--Variable Descriptions
+-Variables Descriptions
 The dataset comprises the following variables:
 
 Variable----------------Description -(Format)
