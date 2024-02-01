@@ -11,11 +11,11 @@ For correspondence: Andrew Millar
 
 ## General Information
 
-1. Abstract: 
+### 1. Abstract: 
 
 The evolution of scientific research now emphasizes Open Data's role in fostering transparency and collaboration. This study evaluates the University of Edinburgh's progress in adopting open data practices, particularly since its 2021 open research policy. Our analysis analyses biosciences research data sharing from 2014 to 2022, reviewing 193 papers for their adherence to Openness and FAIRness criteria: Completeness, Reusability, Accessibility, and Licensing. Findings reveal an uptick in data completeness and reusability, with genome data being shared more frequently than image data. Data availability statements (DAS) and preprint sharing show a strong correlation with higher Openness and FAIRness scores. Furthermore, the FAIR principal implementation in 2016 had a positive impact on data reusability and a notable increase in DAS. On the other hand, the COVID-19 pandemic shows a substantial increase in preprint sharing and a continued trend towards open data sharing, while also resulting in significant improvements in 'Complete,' 'Reuse,' and 'Access' scores. This paper spotlights The University of Edinburgh's journey towards open data, addressing the changes and advocating for best practices to nurture this progression.
 
-2.Data Reuse:
+### 2.Data Reuse:
 
 This dataset is provided to facilitate further research and analysis in the field of Open Data in biosciences.Researchers are encouraged to use this data to replicate study findings, conduct meta-analyses, or extend the research into new areas.
 Before reusing the data, please review the accompanying variable descriptions and usage guidelines to ensure accurate interpretation. Users are expected to reference this dataset according to the citation guidelines provided and adhere to the licensing terms outlined. For any modifications, enhancements, or distributions, we urge users to maintain the integrity of the original data and provide transparent documentation of any data processing steps.
@@ -34,9 +34,10 @@ Before reusing the data, please review the accompanying variable descriptions an
 
 ## Dataset Folder Description
 
-1. Biosciences Publication Dataset
+### 1. Biosciences_Publications_Dataset_2024.csv 
 
-This dataset accompanies the aforementioned publication. It consists of a comprehensive raw dataset, containing selected publications along with key variables extracted for our analysis.
+This dataset, derived from a comprehensive analysis of selected publications in the field of biosciences, is presented in CSV format. It is designed for use with statistical software, such as RStudio, to facilitate detailed analysis.
+CSV File Structure: The dataset contains rows corresponding to selected publications, each characterized by a set of variables critical to our study. The columns in the CSV file represent these variables.
 
 #### Excel File Structure (Biosciences_Publications_Dataset_2024.xlsx)
 * Sheet 1 (Dataset): Contains rows of selected publications and columns representing the variables used in our analysis.The raws that are highlighted in yellow, are the papers that have been randomly selected for reassessing   
