@@ -3,6 +3,7 @@ title: "Biosciences_Project_RMarkdown_Code_Version1"
 author: "Haya Deeb"
 date: "2024-01-23"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -43,9 +44,8 @@ summarized_data <- data %>%
   group_by(Year, Type) %>%
   summarise(count = n(), .groups = "drop") %>%
   left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100) %>%
+  mutate(Percentage = (count / Total) * 100)
   
-
 print(summarized_data)
 ```
 
@@ -100,7 +100,7 @@ summarized_data <- data %>%
   group_by(Category, Type) %>%
   summarise(count = n(), .groups = "drop") %>%
   left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100) %>%
+  mutate(Percentage = (count / Total) * 100)
 
 print(summarized_data)
 ```
@@ -138,7 +138,7 @@ summarized_data <- data %>%
   group_by(Category, Type) %>%
   summarise(count = n(), .groups = "drop") %>%
   left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100) %>%
+  mutate(Percentage = (count / Total) * 100)
 
 print(summarized_data)
 ```
@@ -201,7 +201,7 @@ summarized_data <- data %>%
   group_by(Category, Type) %>%
   summarise(count = n(), .groups = "drop") %>%
   left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100) %>%
+  mutate(Percentage = (count / Total) * 100)
 
 print(summarized_data)
 
@@ -412,6 +412,9 @@ long_data$Category <- recode(long_data$Category,
                              "Licence" = "Licence")
 long_data$Category <- factor(long_data$Category, levels = c("Completeness", "Reusability", "Accessibility", "Licence"))
 
+long_data <- long_data %>%
+  mutate(Value = factor(Value, levels = c("4", "3", "2", "1")))
+
 # Calculate counts and percentages
 long_data <- long_data %>%
   group_by(Category, Value) %>%
@@ -430,11 +433,12 @@ long_data <- long_data %>%
 # Plot
 plot_all <- ggplot(long_data, aes(x = Category, y = Percentage, fill = Value)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("#E5696F", "#50689B", "#36D0A1", "#D0A136")) +
+  scale_fill_manual(values = c("#D0A136", "#36D0A1","#50689B","#E5696F" )) +
   labs(y = "Percentage", fill = "Score") +
+  
+  geom_text(aes(label = Label, y = CumPercentage), size = 5) +
   theme_minimal() +
-  geom_text(aes(label = Label, y = CumPercentage), position = position_stack(vjust = 0.5), size = 6) +
-  theme(
+   theme(
     axis.title = element_text(size = 14), # Increase axis titles
     axis.text = element_text(size = 18),  # Increase axis text
     legend.title = element_text(size = 12), # Increase legend title
@@ -459,6 +463,9 @@ summarized_data <- data %>%
   left_join(data %>% group_by(Type) %>% summarise(Total = n(), .groups = "drop"), by = "Type") %>%
   mutate(Percentage = Count/Total * 100)
 
+summarized_data <- summarized_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
 # For cumulative percentages
 summarized_data <- summarized_data %>%
   arrange(Type, desc(Complete)) %>%
@@ -468,12 +475,12 @@ summarized_data <- summarized_data %>%
 # Create the stacked bar chart for Completeness with colors and annotations
 gcomp <- ggplot(summarized_data, aes(x = Type, y = Percentage, fill = as.factor(Complete))) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("#E5696F", "#50689B", "#36D0A1", "#D0A136")) +
+  scale_fill_manual(values = c("#D0A136", "#36D0A1","#50689B","#E5696F")) +
   labs(x = "Type", y = "Percentage", fill = " Completeness Score") +
   theme_minimal() +
   geom_text(aes(label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), ""), 
                  y = ifelse(Complete == 1, Percentage / 2, CumPercentage - (0.5 * Percentage))),
-            position = position_stack(vjust = 0.5), color = "Black", size = 5) +
+            color = "Black", size = 4) +
   theme(
     axis.title = element_text(size = 14), # Increase axis titles
     axis.text = element_text(size = 18),  # Increase axis text
@@ -497,11 +504,15 @@ summarized_data_reuse <- data %>%
   mutate(Percentage = Count/Total * 100)
 
 summarized_data_reuse <- summarized_data_reuse %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+
+summarized_data_reuse <- summarized_data_reuse %>%
   arrange(Type, desc(Reuse)) %>%
   group_by(Type) %>%
   mutate(CumPercentage = cumsum(Percentage))
 print(summarized_data_reuse)
-colors <- c( "#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c( "#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Visualization
 greuse <- ggplot(summarized_data_reuse, aes(x = Type, y = Percentage, fill = as.factor(Reuse))) +
@@ -511,7 +522,7 @@ greuse <- ggplot(summarized_data_reuse, aes(x = Type, y = Percentage, fill = as.
   theme_minimal() +
   geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
                  y = CumPercentage - (0.5 * Percentage)),
-            position = position_stack(vjust = 0.5), color = "Black", size = 5) +
+             color = "Black", size = 4) +
   theme(
     axis.title = element_text(size = 14), # Increase axis titles
     axis.text = element_text(size = 18),  # Increase axis text
@@ -535,11 +546,14 @@ summarized_data_Access <- data %>%
   mutate(Percentage = Count/Total * 100)
 
 summarized_data_Access <- summarized_data_Access %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+summarized_data_Access <- summarized_data_Access %>%
   arrange(Type, desc(Access)) %>%
   group_by(Type) %>%
   mutate(CumPercentage = cumsum(Percentage))
 print(summarized_data_Access)
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Visualization
 gaccess <- ggplot(summarized_data_Access, aes(x = Type, y = Percentage, fill = as.factor(Access))) +
@@ -549,7 +563,7 @@ gaccess <- ggplot(summarized_data_Access, aes(x = Type, y = Percentage, fill = a
   theme_minimal() +
   geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
                  y = CumPercentage - (0.5 * Percentage)),
-            position = position_stack(vjust = 0.5), color = "Black", size = 5) +
+             color = "Black", size = 4) +
   theme(
     axis.title = element_text(size = 14), # Increase axis titles
     axis.text = element_text(size = 18),  # Increase axis text
@@ -573,11 +587,14 @@ summarized_data_Licence <- data %>%
   mutate(Percentage = Count/Total * 100)
 
 summarized_data_Licence <- summarized_data_Licence %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+summarized_data_Licence <- summarized_data_Licence %>%
   arrange(Type, desc(Licence)) %>%
   group_by(Type) %>%
   mutate(CumPercentage = cumsum(Percentage))
 print(summarized_data_Licence)
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Visualization
 glicence <- ggplot(summarized_data_Licence, aes(x = Type, y = Percentage, fill = as.factor(Licence))) +
@@ -587,7 +604,7 @@ glicence <- ggplot(summarized_data_Licence, aes(x = Type, y = Percentage, fill =
   theme_minimal() +
   geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
                  y = CumPercentage - (0.5 * Percentage)),
-            position = position_stack(vjust = 0.5), color = "Black", size = 5) +
+            color = "Black", size = 4) +
   theme(
     axis.title = element_text(size = 14), # Increase axis titles
     axis.text = element_text(size = 18),  # Increase axis text
@@ -627,8 +644,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 Compyear <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Complete))) +
@@ -671,8 +691,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 reuseyear <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Reuse))) +
@@ -716,8 +739,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 accessyear <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Access))) +
@@ -760,8 +786,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 licenceyear <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Licence))) +
@@ -1360,6 +1389,11 @@ data$Complete <- factor(data$Complete, ordered = TRUE)
 data$Reuse <- factor(data$Reuse, ordered = TRUE)
 data$Access <- factor(data$Access, ordered = TRUE)
 data$Licence <- factor(data$Licence, ordered = TRUE)
+
+levels(data$Complete)
+levels(data$Reuse)
+levels(data$Access)
+levels(data$Licence)
 ```
 
 
@@ -1813,8 +1847,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 internal1 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Complete))) +
@@ -1853,8 +1890,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 internal2 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Reuse))) +
@@ -1891,8 +1931,11 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 internal3 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Access))) +
@@ -1929,8 +1972,12 @@ long_data <- data %>%
   mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
   ungroup()
 
+
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
 # Custom colors
-colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
 
 # Creating the stacked bar chart with percentage labels
 internal4 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Licence))) +
