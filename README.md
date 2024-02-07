@@ -1,11 +1,9 @@
 # Dataset for "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
 
 ## Authors:
-* Haya Deeb
-* Tomasz Zielinski
-* Andrew Millar. 
+Haya Deeb, Hwee Yun Wong, Trisha Usman, Megan A. M. Kutzer, Tomasz Zieliński, Andrew J. Millar*.  
 
-For correspondence: Andrew Millar
+* For correspondence: Andrew Millar (andrew.millar@ed.ac.uk)
 
 -------------------------------------------------------------------
 
@@ -27,14 +25,15 @@ Before reusing the data, please review the accompanying variable descriptions an
 |-- Figures  
 |-- Biosciences_Publications_Dataset_2024.xlsx  
 |-- Biosciences_Publications_Dataset_2024.csv  
-|-- Biosciences_Project_RMarkdown_Code_Version1.Rmd
+|-- Biosciences_Project_RMarkdown_Code_Version1.Rmd  
+|-- Biosciences_Project_RMarkdown_Code_Version1.pdf  
 |-- Supplementary_Material.pdf  
 
 -------------------------------------------------------------------
 
 ## Dataset Folder Description
 
-### 1. Biosciences_Publications_Dataset_2024.csv 
+### 1. Biosciences_Publications_Dataset_2024
 
 This dataset, derived from a comprehensive analysis of selected publications in the field of biosciences, is presented in CSV format. It is designed for use with statistical software, such as RStudio, to facilitate detailed analysis.
 CSV File Structure: The dataset contains rows corresponding to selected publications, each characterized by a set of variables critical to our study. The columns in the CSV file represent these variables.
@@ -71,8 +70,15 @@ The dataset comprises the following variables:
 | Genomics      |Genomic data sharing status -(Binary/NA)  
 
 
-#### RMarkdown Code (Biosciences_Project_RMarkdown_Code_Version1.Rmd)
+### RMarkdown Code 
+
+##### Biosciences_Project_RMarkdown_Code_Version1.Rmd
 The RMarkdown code file encompasses all the code used to analyse the dataset and generate the results presented in the paper and supplementary materials. Each section of the code is titled for ease of navigation, and comments within the code provide explanations and context. Before each statistical test, the assumptions are assessed and documented within the corresponding code chunk.
+Each code chunk in the RMarkdown file is clearly referenced to indicate where its results are presented in the paper, whether in the main text, figures, or tables. This cross-referencing ensures that readers can easily locate the source of each result and understand how it contributes to the findings of the research.
+
+##### Biosciences_Project_RMarkdown_Code_Version1.pdf
+The provided PDF is a knitted version of the RMarkdown code, presenting a static and complete view of the code, figures, and tables as outputs. This format enhances accessibility, allowing those not versed with RStudio or RMarkdown to easily view and share the research findings. It also acts as an archival record, capturing the code in a fixed form to preserve the analysis for future reproducibility. Additionally, the PDF format offers the convenience of a quick review or a printout of the research methods and outcomes, streamlining the understanding of the study's methodology and findings in one document.
+
 
 **Usage Instructions:** 
 
