@@ -1,0 +1,2165 @@
+---
+title: "Biosciences_Project_RMarkdown_Code_Version1"
+author: "Haya Deeb"
+date: "2024-01-23"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+#Impot the libraries and the Dataset
+
+```{r}
+#import the used library and the csv Data File
+
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyr)
+library(scales)
+library(MASS)
+
+
+data <- read.csv ("Biosciences_Publications_Dataset_2024.csv")
+head(data)
+```
+
+#1 - Descriptive Statistics
+
+#How many papers in each type
+```{r}
+type_frequency <- table(data$Type)
+print(type_frequency) #these results were used in the table s1 of the publication
+```
+
+#frequency and percentage of paper in each year
+```{r}
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate frequency and percentage for each Type and Year
+summarized_data <- data %>%
+  group_by(Year, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+  
+print(summarized_data) #these results were used in the table s1 of the publication
+```
+
+
+# Calculate the total number of papers for each year
+```{r}
+yearly_totals <- data %>%
+  group_by(Year) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(yearly_totals$Total)
+
+# Add a column for the percentage of each year's total relative to the grand total
+yearly_totals <- yearly_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the yearly totals and percentages
+print(yearly_totals)
+```
+#to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (overall)
+```{r}
+data <- data %>%
+  mutate(Period = ifelse(Year <= 2016, "Before or in 2016", "After 2016"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(Period) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals)
+```
+
+#to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (depend on type)
+```{r}
+#Frequency and Percantage of paper before and After FAIR principles (2016)
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize, calculate frequency and percentage for each Type based on year
+summarized_data <- data %>%
+  mutate(Category = ifelse(Year <= 2016, "On/Before 2016", "After 2020")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) #these results were used in the table s1 of the publication
+```
+#to categorise papers based on the year of publication compared to COVID 19 - 2020 (overall)
+
+```{r}
+data <- data %>%
+  mutate(Period = ifelse(Year <= 2020, "Before or in 2020", "After 2020"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(Period) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals) #these results were used in the table s1 of the publication
+```
+
+#to categorise papers based on the year of publication compared to COVID 19 - 2020 (NCD vs InfD)
+```{r}
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize, calculate frequency and percentage for each Type based on year
+summarized_data <- data %>%
+  mutate(Category = ifelse(Year <= 2020, "On/Before 2020", "After 2020")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) #these results were used in the table s1 of the publication
+```
+#Plot the distribution of the included papers over the years
+```{r}
+aggregated_data <- data %>%
+  group_by(Year, Type) %>%
+  summarise(count = n(), .groups = "drop")
+
+# Create the clustered bar chart with numbers on top of the bars and specified colors
+year <- ggplot(aggregated_data, aes(x = as.factor(Year), y = count, fill = Type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5) +
+  scale_fill_manual(values = c("#FDCF60", "#1A56BB")) +
+  labs(x = "Year", y = "Number of Papers", title = "Number of Papers by Year") +
+  theme_minimal()
+
+print(year)
+
+ggsave("year.png", year, width = 10, height = 8, dpi = 300, bg="white")
+
+
+```
+
+
+# Frequency and Percentage of the papers that share data (Data Sharing= Data Completeness score >1) Overall
+```{r}
+
+data <- data %>%
+  mutate(Period = ifelse(Complete > 1, "Completeness = 1", "Completeness > 1"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(Period) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals) #these results were used in the table s1 of the publication
+```
+
+
+# Frequency and Percentage of the papers that share data (Data Sharing= Data Completeness score >1) by Type
+```{r}
+
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize based on Completeness, calculate frequency and percentage for each Type
+summarized_data <- data %>%
+  filter(Complete == 1 | Complete > 1) %>%
+  mutate(Category = ifelse(Complete == 1, "Completeness = 1", "Completeness > 1")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) #these results were used in the table s1 of the publication
+
+```
+#Chi square test to assess if there is any difference in data share between the two types (InfD vs NCD)
+```{r}
+# Create a contingency table
+table_completeness <- table(data$Type, data$Complete > 1)
+
+# Perform the Chi-square test
+result <- chisq.test(table_completeness)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+
+```
+#Frequemcy and percentage of preprints 
+```{r}
+# Calculate frequency and percentage for each Preprints category, across all types
+preprints_summary <- data %>%
+  group_by(Preprints) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(preprints_summary$count)
+
+# Add a column for the percentage of each Preprints category relative to the overall total
+preprints_summary <- preprints_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+# Print the summary
+print(preprints_summary)
+
+# Frequency and Percentage of the papers with preprints
+data %>%
+  group_by(Type, Preprints) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+  arrange(Type, Preprints)
+#these results were used in the table s1 of the publication
+```
+
+#Chi square test to assess if there is any difference in preprint between the two types (InfD, NCD)
+```{r}
+# Create a contingency table
+table_preprint <- table(data$Type, data$Preprints)
+
+# Perform the Chi-square test
+result <- chisq.test(table_preprint)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+
+```
+
+# Calculate frequency and percentage for DAS 
+
+```{r}
+DAS_summary <- data %>%
+  group_by(DAS) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(DAS_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+DAS_summary <- DAS_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(DAS_summary)
+
+data$DAS <- as.factor(data$DAS)
+
+# Frequency and Percentage of the papers with DAS in the publications
+data %>%
+  group_by(Type, DAS) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+  arrange(Type, DAS) 
+
+#these results were used in the table s1 of the publication
+```
+#Chi square test to assess if there is any difference in DAS between the two types (InfD, NCD)
+
+```{r}
+
+# Create a contingency table
+table_das <- table(data$Type, data$DAS)
+
+# Perform the Chi-square test
+result <- chisq.test(table_das)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+```
+
+
+# Calculate frequency and percentage for Code Sharing
+```{r}
+CodeArchived_summary <- data %>%
+  group_by(CodeArchived) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(CodeArchived_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+CodeArchived_summary <- CodeArchived_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(CodeArchived_summary)
+
+# Frequency and Percentage of the papers that shared the code used
+data %>%
+  group_by(Type, CodeArchived) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, CodeArchived)
+
+#these results were used in the table s1 of the publication
+```
+#Chi square test to assess if there is any difference in Code Sharing between the two types (InfD, NCD)
+
+```{r}
+# Create a contingency table
+table_code <- table(data$Type, data$CodeArchived)
+
+# Perform the Chi-square test
+result <- chisq.test(table_code)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+
+#these results were used in the table s1 of the publication
+```
+
+
+#Plot the 4 scoring criteria for all the papers
+```{r}
+# Convert all relevant columns to factors first to avoid the error
+data <- data %>%
+  mutate(across(c(Complete, Reuse, Access, Licence), as.character), .groups = "drop")  # Converts to character to ensure compatibility
+
+# Reshape data to long format
+long_data <- data %>%
+  pivot_longer(cols = c(Complete, Reuse, Access, Licence), names_to = "Category", values_to = "Value") %>%
+  mutate(Value = as.character(Value))  # Ensure that Value is a character
+
+# Rename and reorder categories
+long_data$Category <- recode(long_data$Category, 
+                             "Complete" = "Completeness",
+                             "Reuse" = "Reusability",
+                             "Access" = "Accessibility",
+                             "Licence" = "Licence")
+long_data$Category <- factor(long_data$Category, levels = c("Completeness", "Reusability", "Accessibility", "Licence"))
+
+long_data <- long_data %>%
+  mutate(Value = factor(Value, levels = c("4", "3", "2", "1")))
+
+# Calculate counts and percentages
+long_data <- long_data %>%
+  group_by(Category, Value) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  ungroup() %>%
+  group_by(Category) %>%
+  mutate(Total = sum(Count),
+         Percentage = Count / Total * 100) %>%
+  ungroup() %>%
+  arrange(Category, desc(Value)) %>%
+  group_by(Category) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), ""),
+         CumPercentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+# Plot
+Figure_1 <- ggplot(long_data, aes(x = Category, y = Percentage, fill = Value)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = c("#D0A136", "#36D0A1","#50689B","#E5696F" )) +
+  labs(y = "Percentage", fill = "Score") +
+  
+  geom_text(aes(label = Label, y = CumPercentage), size = 5) +
+  theme_minimal() +
+   theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+# Show the plot
+print(Figure_1) #these results were used in the figure 1 of the publication
+
+# Save the plot
+ggsave("Figure_1.png", Figure_1, width = 10, height = 8, dpi = 300, bg="white")
+```
+#Cluster bar chart fro the completeness criteria by the Type of the study
+
+```{r}
+
+# Summarize data
+summarized_data <- data %>%
+  group_by(Type, Complete) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  left_join(data %>% group_by(Type) %>% summarise(Total = n(), .groups = "drop"), by = "Type") %>%
+  mutate(Percentage = Count/Total * 100)
+
+summarized_data <- summarized_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
+# For cumulative percentages
+summarized_data <- summarized_data %>%
+  arrange(Type, desc(Complete)) %>%
+  group_by(Type) %>%
+  mutate(CumPercentage = cumsum(Percentage))
+
+# Create the stacked bar chart for Completeness with colors and annotations
+Figure_s1_1 <- ggplot(summarized_data, aes(x = Type, y = Percentage, fill = as.factor(Complete))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = c("#D0A136", "#36D0A1","#50689B","#E5696F")) +
+  labs(x = "Type", y = "Percentage", fill = " Completeness Score") +
+  theme_minimal() +
+  geom_text(aes(label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), ""), 
+                 y = ifelse(Complete == 1, Percentage / 2, CumPercentage - (0.5 * Percentage))),
+            color = "Black", size = 4) +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+
+print(Figure_s1_1)
+ggsave("Figure_s1_1.png", Figure_s1_1, width = 10, height = 8, dpi = 300)
+
+#these results were used in the Figure S1 of the publication
+
+```
+##Cluster bar chart fro the Reuse criteria by the Type of the study
+
+```{r}
+summarized_data_reuse <- data %>%
+  group_by(Type, Reuse) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  left_join(data %>% group_by(Type) %>% summarise(Total = n(), .groups = "drop"), by = "Type") %>%
+  mutate(Percentage = Count/Total * 100)
+
+summarized_data_reuse <- summarized_data_reuse %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+
+summarized_data_reuse <- summarized_data_reuse %>%
+  arrange(Type, desc(Reuse)) %>%
+  group_by(Type) %>%
+  mutate(CumPercentage = cumsum(Percentage))
+print(summarized_data_reuse)
+colors <- c( "#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Visualization
+Figure_s1_2 <- ggplot(summarized_data_reuse, aes(x = Type, y = Percentage, fill = as.factor(Reuse))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = colors) +
+  labs(x = "Type", y = "Percentage", fill = "Reusability Score") +
+  theme_minimal() +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
+                 y = CumPercentage - (0.5 * Percentage)),
+             color = "Black", size = 4) +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+print(Figure_s1_2)
+ggsave("Figure_s1_2.png", Figure_s1_2, width = 10, height = 8, dpi = 300)
+
+#these results were used in the Figure S1 of the publication
+```
+
+#bar chart for the Accessibility criteria by the Type of the study
+
+```{r}
+summarized_data_Access <- data %>%
+  group_by(Type, Access) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  left_join(data %>% group_by(Type) %>% summarise(Total = n(), .groups = "drop"), by = "Type") %>%
+  mutate(Percentage = Count/Total * 100)
+
+summarized_data_Access <- summarized_data_Access %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+summarized_data_Access <- summarized_data_Access %>%
+  arrange(Type, desc(Access)) %>%
+  group_by(Type) %>%
+  mutate(CumPercentage = cumsum(Percentage))
+print(summarized_data_Access)
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Visualization
+Figure_s1_3 <- ggplot(summarized_data_Access, aes(x = Type, y = Percentage, fill = as.factor(Access))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = colors) +
+  labs(x = "Type", y = "Percentage", fill = "Accessibility Score") +
+  theme_minimal() +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
+                 y = CumPercentage - (0.5 * Percentage)),
+             color = "Black", size = 4) +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+print(Figure_s1_3)
+ggsave("Figure_s1_3.png", Figure_s1_3, width = 10, height = 8, dpi = 300)
+
+#these results were used in the Figure S1 of the publication
+```
+
+#bar chart for the Licence criteria by the Type of the study
+
+```{r}
+summarized_data_Licence <- data %>%
+  group_by(Type, Licence) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  left_join(data %>% group_by(Type) %>% summarise(Total = n(), .groups = "drop"), by = "Type") %>%
+  mutate(Percentage = Count/Total * 100)
+
+summarized_data_Licence <- summarized_data_Licence %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+summarized_data_Licence <- summarized_data_Licence %>%
+  arrange(Type, desc(Licence)) %>%
+  group_by(Type) %>%
+  mutate(CumPercentage = cumsum(Percentage))
+print(summarized_data_Licence)
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Visualization
+Figure_s1_4 <- ggplot(summarized_data_Licence, aes(x = Type, y = Percentage, fill = as.factor(Licence))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = colors) +
+  labs(x = "Type", y = "Percentage", fill = "Licence Score") +
+  theme_minimal() +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%"), 
+                 y = CumPercentage - (0.5 * Percentage)),
+            color = "Black", size = 4) +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+print(Figure_s1_4)
+ggsave("Figure_s1_4.png", Figure_s1_4, width = 10, height = 8, dpi = 300)
+
+#these results were used in the Figure S1 of the publication
+
+```
+
+```{r}
+library(patchwork)
+```
+
+```{r}
+Figure_s1 <- Figure_s1_1 + Figure_s1_2 + Figure_s1_3 + Figure_s1_4 +
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_s1)
+ggsave("Figure_s1.png", Figure_s1_4, width = 15, height = 10, units = "in")
+
+#these results were used in the Figure S1 of the publication
+```
+
+
+
+```{r}
+
+# Calculate the frequency and percentage for each 'Complete' score within each 'Year'
+long_data <- data %>%
+  count(Year, Complete) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_1 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Complete))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Completeness") +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  theme_minimal() +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_1)
+
+ggsave("Figure_2_1.png", Figure_2_1, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the Figure 2 of the publication
+
+```
+```{r}
+
+# Calculate the frequency and percentage for each 'Reuse' score within each 'Year'
+long_data <- data %>%
+  count(Year, Reuse) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_2 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Reuse))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Reusability") +
+    theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  theme_minimal() +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_2)
+ggsave("Figure_2_2.png", Figure_2_2, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the Figure 2 of the publication
+
+```
+
+
+```{r}
+# Calculate the frequency and percentage for each 'Access' score within each 'Year'
+long_data <- data %>%
+  count(Year, Access) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_3 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Access))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Accessibility") +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+    theme_minimal() +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_3)
+
+ggsave("Figure_2_3.png", Figure_2_3, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the Figure 2 of the publication
+
+```
+```{r}
+
+# Calculate the frequency and percentage for each 'Licence' score within each 'Year'
+long_data <- data %>%
+  count(Year, Licence) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_4 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Licence))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Licence") +
+  theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  theme_minimal() +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_4)
+
+ggsave("Figure_2_4.png", Figure_2_4, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the Figure 2 of the publication
+
+```
+
+
+```{r}
+Figure_2 <- Figure_2_1 + Figure_2_2 + Figure_2_3 + Figure_2_4 +
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_2)
+
+ggsave("Figure_2.png", Figure_2, width = 15, height = 10, units = "in")
+
+#these results were used in the Figure 2 of the publication
+ 
+```
+
+#study the significant dfference between two type of the reseearch for each scoring criteria
+
+```{r}
+# Convert scoring criteria to numeric (if not already)
+data <- data %>%
+  mutate(across(c(Complete, Reuse, Access, Licence), ~as.numeric(as.character(.))))
+
+# Assumption checks for each criterion
+for (criterion in c("Complete", "Reuse", "Access", "Licence")) {
+  # Create and display a box plot to check the distribution shape and spread
+  print(ggplot(data, aes_string(x = "Type", y = criterion, fill = "Type")) +
+    geom_boxplot() +
+    ggtitle(paste("Boxplot for", criterion)))
+  
+  # Print the median for a basic comparison
+  cat(paste("Median of", criterion, "by Type:\n"))
+  print(aggregate(. ~ Type, data[c("Type", criterion)], median))
+  
+  cat("\n")
+}
+
+# Function to perform Mann-Whitney U test
+perform_mann_whitney <- function(data, criterion) {
+  test_result <- wilcox.test(
+    reformulate("Type", response = criterion), 
+    data = data,
+    exact = FALSE
+  )
+  list(criterion = criterion, p.value = test_result$p.value)
+}
+
+# Perform the test for each criterion
+mw_results <- lapply(c("Complete", "Reuse", "Access", "Licence"), function(criterion) {
+  perform_mann_whitney(data, criterion)
+})
+
+# Convert the list of results to a dataframe
+mw_results_df <- do.call(rbind, mw_results)
+
+print(mw_results_df)
+
+
+#The assumptions of the test were met:
+### Ordinal Data Check: The scoring criteria are ordinal variables
+### Similar Distribution Shapes: For each criterion, it creates a box plot to visually inspect the distribution shapes. This is crucial to check if the distributions are similar across groups.
+### Independence of Observations:the variables are independence observations. 
+
+#these results were used in the First result Paragraph of the publication
+
+```
+#Creat variables for FAIR principles in 2016 and COVID-19 in 2020
+```{r}
+data <- data %>%
+  mutate(Period2020 = ifelse(Year <= 2020, "Before 2020", "After 2020")) %>%
+  mutate(Period2016 = ifelse(Year <= 2016, "Before 2016", "After 2016"))#
+```
+
+
+#Study the significant difference before and afterCovid-19 2020 using Median and Mann Whitney U test
+```{r}
+# Ensure the scoring criteria are numeric
+data <- data %>%
+  mutate(across(c(Complete, Reuse, Access, Licence), ~as.numeric(as.character(.))))
+
+# Function to generate box plots for distribution checks
+generate_boxplot <- function(data, score_var, period_var) {
+  ggplot(data, aes_string(x = period_var, y = score_var, fill = period_var)) +
+    geom_boxplot() +
+    labs(title = paste("Boxplot for", score_var, "across", period_var),
+         x = period_var,
+         y = score_var) +
+    theme_minimal()
+}
+
+# Generate and display box plots for each score with Period2020
+lapply(c("Complete", "Reuse", "Access", "Licence"), function(score_var) {
+  generate_boxplot(data, score_var, "Period2020")
+})
+
+
+# Function to perform the Mann-Whitney test and calculate medians
+perform_analysis <- function(data, score_var, period_var) {
+  test_result <- wilcox.test(reformulate(period_var, score_var), data = data, exact = FALSE)
+  
+  medians <- data %>%
+    group_by(!!sym(period_var)) %>%
+    summarise(median = median(!!sym(score_var), na.rm = TRUE), .groups = 'drop')
+  
+  list(median = medians, p.value = test_result$p.value)
+}
+
+# Analysis for each score for 2020
+results_complete_2020 <- perform_analysis(data, "Complete", "Period2020")
+results_reuse_2020 <- perform_analysis(data, "Reuse", "Period2020")
+results_access_2020 <- perform_analysis(data, "Access", "Period2020")
+results_licence_2020 <- perform_analysis(data, "Licence", "Period2020")
+
+# Print results
+print(results_complete_2020)
+print(results_reuse_2020)
+print(results_access_2020)
+print(results_licence_2020)
+
+
+#The assumptions of the test were met:
+### Ordinal Data Check: The scoring criteria are ordinal variables
+### Similar Distribution Shapes: For each criterion, it creates a box plot to visually inspect the distribution shapes. This is crucial to check if the distributions are similar across groups.
+### Independence of Observations:the variables are independence observations. 
+
+#these results were used in the sixth result Paragraph of the publication
+
+```
+
+#Study the significant difference before and afterCovid-19 2020 using Median and Mann Whitney U test for the NCD Papers
+
+```{r}
+data_NCD <- data %>% 
+  filter(Type == "NCD")
+
+
+perform_analysis <- function(data_NCD, score_var, period_var) {
+  test_result <- wilcox.test(reformulate(period_var, score_var), data = data_NCD, exact = FALSE)
+  
+  medians <- data_NCD %>%
+    group_by(!!sym(period_var)) %>%
+    summarise(median = median(!!sym(score_var), na.rm = TRUE), .groups = 'drop')
+  
+  list(median = medians, p.value = test_result$p.value)
+}
+
+# Analysis for each score for 2020
+results_complete_2020_NCD <- perform_analysis(data_NCD, "Complete", "Period2020")
+results_reuse_2020_NCD <- perform_analysis(data_NCD, "Reuse", "Period2020")
+results_access_2020_NCD <- perform_analysis(data_NCD, "Access", "Period2020")
+results_licence_2020_NCD <- perform_analysis(data_NCD, "Licence", "Period2020")
+
+# Print results
+results_complete_2020_NCD
+results_reuse_2020_NCD
+results_access_2020_NCD
+results_licence_2020_NCD
+
+#these results were used in the sixth result Paragraph of the publication
+
+```
+
+#Study the significant difference before and afterCovid-19 2020 using Median and Mann Whitney U test for the InfD Papers
+
+```{r}
+data_InfD <- data %>% 
+  filter(Type == "InfD")
+
+
+perform_analysis <- function(data_NCD, score_var, period_var) {
+  test_result <- wilcox.test(reformulate(period_var, score_var), data = data_InfD, exact = FALSE)
+  
+  medians <- data_InfD %>%
+    group_by(!!sym(period_var)) %>%
+    summarise(median = median(!!sym(score_var), na.rm = TRUE), .groups = 'drop')
+  
+  list(median = medians, p.value = test_result$p.value)
+}
+
+# Analysis for each score for 2020
+results_complete_2020_InfD <- perform_analysis(data_InfD, "Complete", "Period2020")
+results_reuse_2020_InfD <- perform_analysis(data_InfD, "Reuse", "Period2020")
+results_access_2020_InfD <- perform_analysis(data_InfD, "Access", "Period2020")
+results_licence_2020_InfD <- perform_analysis(data_InfD, "Licence", "Period2020")
+
+# Print results
+results_complete_2020_InfD
+results_reuse_2020_InfD
+results_access_2020_InfD
+results_licence_2020_InfD
+
+#these results were used in the sixth result Paragraph of the publication
+
+```
+#Study the significant difference before and after Fair 2016 using Median and Mann Whitney U for all the papers
+
+```{r}
+data <- data %>%
+  mutate(Period2016 = ifelse(Year <= 2016, "Before 2016", "After 2016"))
+
+# Function to perform the Mann-Whitney test, calculate medians, and generate box plots
+perform_analysis <- function(data, score_var, period_var) {
+  test_result <- wilcox.test(reformulate(period_var, score_var), data = data, exact = FALSE)
+  
+  medians <- data %>%
+    group_by(!!sym(period_var)) %>%
+    summarise(median = median(!!sym(score_var), na.rm = TRUE), .groups = 'drop')
+  
+  # Generate a box plot
+  box_plot <- ggplot(data, aes_string(x = period_var, y = score_var, fill = period_var)) +
+    geom_boxplot() +
+    labs(title = paste("Boxplot for", score_var, "across", period_var),
+         x = period_var,
+         y = score_var) +
+    theme_minimal()
+  
+  # Print the box plot
+  print(box_plot)
+  
+  list(median = medians, p.value = test_result$p.value, plot = box_plot)
+}
+
+# Analysis for each score for 2016
+results_complete_2016 <- perform_analysis(data, "Complete", "Period2016")
+results_reuse_2016 <- perform_analysis(data, "Reuse", "Period2016")
+results_access_2016 <- perform_analysis(data, "Access", "Period2016")
+results_licence_2016 <- perform_analysis(data, "Licence", "Period2016")
+
+# Print results
+results_complete_2016
+results_reuse_2016
+results_access_2016
+results_licence_2016
+
+#these results were used in the sixth result Paragraph of the publication
+
+
+```
+
+#Study the significant difference before and after Fair 2016 using Median and Mann Whitney U test for the NCD Papers
+
+```{r}
+perform_analysis <- function(data_NCD, score_var, period_var) {
+  test_result <- wilcox.test(reformulate(period_var, score_var), data = data_NCD, exact = FALSE)
+  
+  medians <- data_NCD %>%
+    group_by(!!sym(period_var)) %>%
+    summarise(median = median(!!sym(score_var), na.rm = TRUE), .groups = 'drop')
+  
+  list(median = medians, p.value = test_result$p.value)
+}
+# Analysis for each score for 2016
+results_complete_2016_NCD <- perform_analysis(data_NCD, "Complete", "Period2016")
+results_reuse_2016_NCD <- perform_analysis(data_NCD, "Reuse", "Period2016")
+results_access_2016_NCD <- perform_analysis(data_NCD, "Access", "Period2016")
+results_licence_2016_NCD <- perform_analysis(data_NCD, "Licence", "Period2016")
+
+# Print results
+results_complete_2016_NCD
+results_reuse_2016_NCD
+results_access_2016_NCD
+results_licence_2016_NCD
+
+#these results were used in the sixth result Paragraph of the publication
+
+```
+
+#Study the significant difference before and after Fair 2016 using Median and Mann Whitney U test for the InfD Papers
+
+```{r}
+
+# Analysis for each score for 2016
+results_complete_2016_InfD <- perform_analysis(data_InfD, "Complete", "Period2016")
+results_reuse_2016_InfD <- perform_analysis(data_InfD, "Reuse", "Period2016")
+results_access_2016_InfD <- perform_analysis(data_InfD, "Access", "Period2016")
+results_licence_2016_InfD <- perform_analysis(data_InfD, "Licence", "Period2016")
+
+# Print results
+results_complete_2016_InfD
+results_reuse_2016_InfD
+results_access_2016_InfD
+results_licence_2016_InfD
+
+#these results were used in the sixth result Paragraph of the publication
+
+
+```
+
+#plot the distribution of DAS for each completeness score
+```{r}
+# Transform the DAS variable
+data <- data %>%
+  mutate(NewDAS = case_when(
+    is.na(DAS) ~ "Not Presented",
+    DAS == 1 ~ "Shared",
+    DAS == 0 ~ "Not Shared",
+    TRUE ~ as.character(DAS)))  # This line is just a fallback to handle unexpected values
+
+class(data$NewDAS)
+
+# Convert the new DAS variable to a factor for plotting
+data$NewDAS <- factor(data$NewDAS, levels = c("Not Presented", "Not Shared", "Shared"))
+
+# Calculate frequency and percentage for each combination of 'Complete' score and 'NewDAS' status
+das_frequency <- data %>%
+  group_by(Complete, NewDAS) %>%
+  summarise(Frequency = n(), .groups = 'drop') %>%
+  mutate(Percentage = (Frequency / sum(Frequency)) * 100)
+
+# Define specific colors for the new DAS values
+colors <- c("Not Presented" = "gray", "Not Shared" = "#E5696F", "Shared" = "#50689B")
+
+# Create the plot
+Figure_4 <- ggplot(das_frequency, aes(x = as.factor(Complete), y = Frequency, fill = NewDAS)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Percentage, 1), "% (", Frequency, ")")),
+            position = position_dodge(width = 0.9), vjust = -0.25, size = 3.5) +
+  scale_fill_manual(values = colors, name = "DAS Status") +
+  theme_bw() +  # Use theme_bw for a white background
+   theme(
+    axis.title = element_text(size = 10), # Increase axis titles
+    axis.text = element_text(size = 16),  # Increase axis text
+    legend.title = element_text(size = 14), # Increase legend title
+    legend.text = element_text(size = 16)  # Increase legend text
+  ) +
+  labs(x = "Completeness Score", y = "Frequency") +
+  theme(legend.position = "bottom")
+
+# Print and save the plot
+print(Figure_4)
+ggsave("Figure_4.png", Figure_4, width = 8, height = 6,  bg = "white")
+
+#these results were used in the Figure 4 of the publication
+
+
+```
+
+```{r}
+# Calculate the total count per year
+yearly_totals <- data %>%
+  group_by(Year) %>%
+  summarise(Total = n(), .groups = 'drop')
+
+# Join the totals back to the original data and calculate proportions
+proportion_data <- data %>%
+  left_join(yearly_totals, by = "Year") %>%
+  group_by(Year, NewDAS) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Proportion = Count / n())
+
+# Get all unique years for the x-axis
+all_years <- sort(unique(proportion_data$Year))
+
+colors <- c("Not Presented" = "#828282", "Not Shared" = "#E5696F", "Shared" = "#50689B")
+
+# Plot with every year on the x-axis
+Figure_S2 <- ggplot(proportion_data, aes(x = Year, y = Proportion, color = NewDAS, group = NewDAS)) +
+  geom_line() +
+  geom_point() +
+  geom_vline(xintercept = 2016, linetype = "dashed", color = "black") +
+  geom_vline(xintercept = 2020, linetype = "dashed", color = "black") +
+  annotate("text", x = 2016, y = max(proportion_data$Proportion), label = "FAIR Principle", angle = 90, hjust = 1.5, vjust = -0.5, size = 3.5) +
+  annotate("text", x = 2020, y = max(proportion_data$Proportion), label = "COVID-19 Pandemic", angle = 90, hjust = 1.5, vjust = 1, size = 3.5) +
+  scale_x_continuous(breaks = all_years) +
+  labs(x = "Year", y = "Proportion", color = "Data Availability Statement") +
+  theme(
+    axis.title = element_text(size = 10), # Increase axis titles
+    axis.text = element_text(size = 16),  # Increase axis text
+    legend.title = element_text(size = 14), # Increase legend title
+    legend.text = element_text(size = 16)  # Increase legend text
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = colors)
+ 
+print(Figure_S2)
+
+ggsave("Figure_S2.png", Figure_S2, width = 8, height = 6,  bg = "white")
+
+#these results were used in the Figure S2 of the publication
+
+
+```
+```{r}
+ #Convert the Preprint numeric values to factor levels 'Yes' and 'No'
+data$Preprints <- factor(ifelse(data$Preprints == 1, "Yes", "No"))
+
+# Calculate the total count per year and proportion for Preprint
+proportion_data <- data %>%
+  group_by(Year) %>%
+  count(Preprints) %>%
+  mutate(Total = sum(n), 
+         Proportion = n / Total)
+
+# Get all unique years for the x-axis
+all_years <- sort(unique(proportion_data$Year))
+
+# Define colors for 'Yes' and 'No'
+colors <- c("No" = "#E5696F", "Yes" = "#50689B")
+
+# Plot with every year on the x-axis for Preprints
+Figure_S3 <- ggplot(proportion_data, aes(x = Year, y = Proportion, color = Preprints, group = Preprints)) +
+  geom_line() +
+  geom_point() +
+  geom_vline(xintercept = 2016, linetype = "dashed", color = "black") +
+  geom_vline(xintercept = 2020, linetype = "dashed", color = "black") +
+  annotate("text", x = 2016, y = max(proportion_data$Proportion), label = "FAIR Principle", angle = 90, hjust = 1.5, vjust = -0.5, size = 3.5) +
+  annotate("text", x = 2020, y = max(proportion_data$Proportion), label = "COVID-19 Pandemic", angle = 90, hjust = 1.5, vjust = 1, size = 3.5) +
+  scale_x_continuous(breaks = all_years) +
+  labs(x = "Year", y = "Proportion", color = "Preprints") +
+  theme(
+    axis.title = element_text(size = 10), # Increase axis titles
+    axis.text = element_text(size = 16),  # Increase axis text
+    legend.title = element_text(size = 14), # Increase legend title
+    legend.text = element_text(size = 16)  # Increase legend text
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = colors)
+ 
+print(Figure_S3)
+
+# Save the plot for Preprint
+ggsave("Figure_S3.png", Figure_S3, width = 8, height = 6, bg = "white")
+
+#these results were used in the Figure S3 of the publication
+
+```
+
+
+
+#study if FAIR implementation and Covid19 have an effect on DAS and Preprint
+# 1- Fair implementataion
+
+```{r}
+total_by_period <- data %>%
+  group_by(Period2016) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Join this total with the DAS and Preprints summaries and calculate the percentage
+Preprints_summary <- data %>%
+  group_by(Period2016, Preprints) %>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  left_join(total_by_period, by = "Period2016") %>%
+  mutate(Percentage = (Frequency / Total) * 100)
+
+# Print the Preprints summary table
+print(Preprints_summary)
+
+Preprints_table <- table(data$Preprints, data$Period2016)
+
+# Perform the Chi-square test
+result <- chisq.test(Preprints_table)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+
+
+#these results were used in the seventh result paragraph and Table S3/S4 of the publication
+
+```
+```{r}
+total_by_period <- data %>%
+  group_by(Period2016) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Join this total with the NewDAS and Preprints summaries and calculate the percentage
+das_summary <- data %>%
+  group_by(Period2016, NewDAS)%>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  left_join(total_by_period, by = "Period2016") %>%
+  mutate(Percentage = (Frequency / Total) * 100)
+
+# Print the DAS summary table
+print(das_summary)
+
+das_table <- table(data$NewDAS, data$Period2016)
+
+# Perform the Chi-square test
+result <- chisq.test(das_table)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal).
+
+#these results were used in the seventh result paragraph and Table S3/S4 of the publication
+
+```
+#2- Covid 19
+# the impact of COVID-19 on Preprints
+```{r}
+total_by_period <- data %>%
+  group_by(Period2020)%>%
+  summarise(Total = n(), .groups = "drop")
+
+# Join this total with the DAS and Preprints summaries and calculate the percentage
+Preprints_summary <- data %>%
+  group_by(Period2020, Preprints) %>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  left_join(total_by_period, by = "Period2020") %>%
+  mutate(Percentage = (Frequency / Total) * 100)
+
+# Print the Preprints summary table
+print(Preprints_summary)
+
+Preprints_table <- table(data$Preprints, data$Period2020)
+
+# Perform the Chi-square test
+result <- chisq.test(Preprints_table)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal)
+
+
+#these results were used in the seventh result paragraph of the publication
+
+```
+# the impact of COVID-19 on DAS
+
+```{r}
+total_by_period <- data %>%
+  group_by(Period2020) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Join this total with the NewDAS and Preprints summaries and calculate the percentage
+das_summary <- data %>%
+  group_by(Period2020, NewDAS)%>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  left_join(total_by_period, by = "Period2020") %>%
+  mutate(Percentage = (Frequency / Total) * 100)
+
+# Print the DAS summary table
+print(das_summary)
+
+das_table <- table(data$NewDAS, data$Period2016)
+
+# Perform the Chi-square test
+result <- chisq.test(das_table)
+
+#Print the chi-square results
+print(result)
+
+# Get the expected values
+expected_values <- result$expected
+
+# Print the expected values
+print(expected_values) ##in order to check the assumption of chi square test: Each cell in the contingency table should have an expected count of 5 or more. 
+
+#The assumptions of that test were met:
+
+#### Sample Size: Each cell in the contingency table has an expected count of 5 or more. 
+#### Independence: The observations are  independent of each other. This means that the selection of one observation should not influence or affect the selection of another observation.
+### Random Sampling: The data is a random sample.
+### Categorical Data: Both variables should be categorical (either nominal or ordinal)
+
+#these results were used in the seventh result paragraph of the publication
+
+
+```
+
+
+
+#2 - Ordinal regression models (Scoring Criteria and year)
+
+```{r}
+library(ordinal) # ordinal logistic regression: cumulative link mixed models, clm function is in this package; For a detailed explanation of the package and the functions available see: https://cran.r-project.org/web/packages/ordinal/vignettes/clm_article.pdf
+library(VGAM) # more ordinal regression 
+library(dplyr) # Data manipulation
+library(chisq.posthoc.test) # If needed
+library(gmodels) # For SPSS style chi-sq/ contingency tables
+library(emmeans)
+library(sure)
+```
+
+```{r}
+data$Complete <- factor(data$Complete, ordered = TRUE)
+data$Reuse <- factor(data$Reuse, ordered = TRUE)
+data$Access <- factor(data$Access, ordered = TRUE)
+data$Licence <- factor(data$Licence, ordered = TRUE)
+
+levels(data$Complete)
+levels(data$Reuse)
+levels(data$Access)
+levels(data$Licence)
+```
+
+
+#Ordinal regression model for the Completeness by year
+
+```{r}
+m1a <- clm(Complete ~ Year, data = data)
+summary_m1a <- summary(m1a) 
+
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here because p = 0.8386. If p is less than 0.05 then assumptions are violated
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$Year) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+# N.B. - Interpreting residual plots is largely subjective! 
+
+###plotting the model
+# Predict probabilities for each level of 'Complete'
+new_data <- data.frame(Year = sort(unique(data$Year)))
+pred_probs <- predict(m1a, newdata = new_data, type = "prob")
+
+# Add the 'Year' column to the predicted probabilities dataframe
+pred_probs_df <- cbind(new_data, as.data.frame(pred_probs))
+
+# Convert the predicted probabilities to a long format for ggplot
+library(reshape2)
+pred_probs_long <- melt(pred_probs_df, id.vars = 'Year', variable.name = 'CompleteLevel', value.name = 'PredictedProbability')
+
+# Set the colors
+my_colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+
+# Modify ggplot command
+Figure_3_1 <- ggplot(pred_probs_long, aes(x = Year, y = PredictedProbability, group = CompleteLevel, color = CompleteLevel)) + 
+  geom_line(size = 2) +  # Set size of the lines to make them thicker
+  scale_color_manual(values = my_colors) +
+  scale_x_continuous(breaks = unique(pred_probs_long$Year)) +  # Show all years on x-axis
+  labs(x = "Year", y = "Probability", color = "Completeness Score") +
+  theme(
+    axis.title = element_text(size = 12), # Increase axis titles
+    axis.text = element_text(size = 14),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) 
+print(Figure_3_1)
+
+ggsave("Figure_3_1.png", Figure_3_1, width = 15, height = 10, units = "in",  bg = "white")
+
+#these results were used in the Forth result paragraph and Figure 3 of the publication
+
+
+```
+
+
+#Ordinal regression model for the Reusibility by year
+
+```{r}
+m1a <- clm(Reuse ~ Year, data = data) 
+summary_m1a <- summary(m1a) 
+
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$Year) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+# N.B. - Interpreting residual plots is largely subjective! 
+
+###plotting the model
+# Predict probabilities for each level of 'Complete'
+new_data <- data.frame(Year = sort(unique(data$Year)))
+pred_probs <- predict(m1a, newdata = new_data, type = "prob")
+
+# Add the 'Year' column to the predicted probabilities dataframe
+pred_probs_df <- cbind(new_data, as.data.frame(pred_probs))
+
+# Convert the predicted probabilities to a long format for ggplot
+library(reshape2)
+pred_probs_long <- melt(pred_probs_df, id.vars = 'Year', variable.name = 'Reuselevel', value.name = 'PredictedProbability')
+
+# Set the colors 
+my_colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+
+# Modify ggplot command
+Figure_3_2 <- ggplot(pred_probs_long, aes(x = Year, y = PredictedProbability, group = Reuselevel, color = Reuselevel)) + 
+  geom_line(size = 2) +  # Set size of the lines to make them thicker
+  scale_color_manual(values = my_colors) +  # Use colors
+  scale_x_continuous(breaks = unique(pred_probs_long$Year)) +  # Show all years on x-axis
+  labs(x = "Year", y = "Probability", color = "Reusability Score") +
+  theme(
+    axis.title = element_text(size = 12), # Increase axis titles
+    axis.text = element_text(size = 14),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) 
+print(Figure_3_2)
+
+ggsave("Figure_3_2.png", Figure_3_2, width = 15, height = 10, units = "in",  bg = "white")
+
+#these results were used in the Forth result paragraph and Figure 3 of the publication
+
+
+```
+
+```{r}
+m1a <- clm(Access ~ Year, data = data) 
+summary_m1a <- summary(m1a) 
+
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$Year) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+# N.B. - Interpreting residual plots is largely subjective! 
+
+###plotting the model
+# Predict probabilities for each level of 'Complete'
+new_data <- data.frame(Year = sort(unique(data$Year)))
+pred_probs <- predict(m1a, newdata = new_data, type = "prob")
+
+# Add the 'Year' column to the predicted probabilities dataframe
+pred_probs_df <- cbind(new_data, as.data.frame(pred_probs))
+
+# Convert the predicted probabilities to a long format for ggplot
+library(reshape2)
+pred_probs_long <- melt(pred_probs_df, id.vars = 'Year', variable.name = 'AccessLevel', value.name = 'PredictedProbability')
+
+# Set the colors
+my_colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+
+# Modify ggplot command
+Figure_3_3 <- ggplot(pred_probs_long, aes(x = Year, y = PredictedProbability, group = AccessLevel, color = AccessLevel)) + 
+  geom_line(size = 2) +  # Set size of the lines to make them thicker
+  scale_color_manual(values = my_colors) +  # Use colors
+  scale_x_continuous(breaks = unique(pred_probs_long$Year)) +  # Show all years on x-axis
+  labs(x = "Year", y = "Probability", color = "Accessibility Score") +
+  theme(
+    axis.title = element_text(size = 12), # Increase axis titles
+    axis.text = element_text(size = 14),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) 
+print(Figure_3_3)
+
+ggsave("Figure_3_3.png", Figure_3_3, width = 15, height = 10, units = "in",  bg = "white")
+
+#these results were used in the Forth result paragraph and Figure 3 of the publication
+
+
+```
+
+```{r}
+m1a <- clm(Licence ~ Year, data = data) 
+summary_m1a <- summary(m1a) 
+
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$Year) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+# N.B. - Interpreting residual plots is largely subjective! 
+
+###plotting the model
+# Predict probabilities for each level of 'Complete'
+new_data <- data.frame(Year = sort(unique(data$Year)))
+pred_probs <- predict(m1a, newdata = new_data, type = "prob")
+
+# Add the 'Year' column to the predicted probabilities dataframe
+pred_probs_df <- cbind(new_data, as.data.frame(pred_probs))
+
+# Convert the predicted probabilities to a long format for ggplot
+library(reshape2)
+pred_probs_long <- melt(pred_probs_df, id.vars = 'Year', variable.name = 'Licencelevel', value.name = 'PredictedProbability')
+
+# Set the colors 
+my_colors <- c("#E5696F", "#50689B", "#36D0A1", "#D0A136")
+
+# Modify ggplot command
+Figure_3_4 <- ggplot(pred_probs_long, aes(x = Year, y = PredictedProbability, group = Licencelevel, color = Licencelevel)) + 
+  geom_line(size = 2) +  # Set size of the lines to make them thicker
+  scale_color_manual(values = my_colors) +  # Use colors
+  scale_x_continuous(breaks = unique(pred_probs_long$Year)) +  # Show all years on x-axis
+  labs(x = "Year", y = "Probability", color = "Licence Score") +
+  theme(
+    axis.title = element_text(size = 12), # Increase axis titles
+    axis.text = element_text(size = 14),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) 
+print(Figure_3_4)
+
+ggsave("Figure_3_4.png", Figure_3_4, width = 15, height = 10, units = "in",  bg = "white")
+
+#these results were used in the Forth result paragraph and Figure 3 of the publication
+
+
+```
+```{r}
+Figure_3 <- Figure_3_1 + Figure_3_2 + Figure_3_3 + Figure_3_4 +
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_3)
+
+ggsave("Figure_3.png", Figure_3, width = 15, height = 10, units = "in", bg="white")
+
+#these results were used in the Figure 3 of the publication
+
+ 
+```
+
+
+####3
+
+#Ordinal Regression  models depending on the sharing projects
+
+```{r}
+m1a <- clm(Complete ~ NewDAS + Preprints, data = data) 
+summary_m1a <- summary(m1a)
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here because p = 0.8386. If p is less than 0.05 then assumptions are violated
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$NewDAS) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+autoplot.clm(m1a, what = c("covariate"), x = data$Preprints)
+# N.B. - Interpreting residual plots is largely subjective! 
+
+
+#these results were used in the Fifth result paragraph and Table 2 of the publication
+
+
+```
+
+
+```{r}
+m1a <- clm(Reuse ~ NewDAS + Preprints, data = data) 
+summary_m1a <- summary(m1a)
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here because p = 0.8386. If p is less than 0.05 then assumptions are violated
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$NewDAS) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+autoplot.clm(m1a, what = c("covariate"), x = data$Preprints)
+# N.B. - Interpreting residual plots is largely subjective! 
+
+#these results were used in the Fifth result paragraph and Table 2 of the publication
+
+```
+
+```{r}
+m1a <- clm(Access ~ NewDAS + Preprints, data = data) 
+summary_m1a <- summary(m1a)
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here because p = 0.8386. If p is less than 0.05 then assumptions are violated
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$NewDAS) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+autoplot.clm(m1a, what = c("covariate"), x = data$Preprints)
+# N.B. - Interpreting residual plots is largely subjective! 
+
+#these results were used in the Fifth result paragraph and Table 2 of the publication
+
+```
+
+
+```{r}
+m1a <- clm(Licence ~ NewDAS + Preprints, data = data) 
+summary_m1a <- summary(m1a)
+
+# Extract coefficients and standard errors
+coefs <- summary_m1a$coefficients[, 1]  # Coefficients
+se_coefs <- summary_m1a$coefficients[, 2]  # Standard errors
+
+# Extract coefficients and standard errors
+coefs <- summary(m1a)$coefficients
+OR <- exp(coefs[,1])
+lower_ci <- exp(coefs[,1] - 1.96 * coefs[,2])
+upper_ci <- exp(coefs[,1] + 1.96 * coefs[,2])
+
+# Calculate z-values and p-values
+z_values <- coefs[,1] / coefs[,2]
+p_values <- 2 * (1 - pnorm(abs(z_values)))
+
+# Combine everything into a data frame for easy viewing
+results <- data.frame(OR = OR, LowerCI = lower_ci, UpperCI = upper_ci, p_value = p_values)
+print(results)
+
+
+#Check the Assumptions 
+nominal_test(m1a) # This is a test of the proportional odds assumption, odds are proportional in this case.
+scale_test(m1a) # scale test checks for equal variance/ scale across year, assumptions are not violated here because p = 0.8386. If p is less than 0.05 then assumptions are violated
+convergence(m1a) # This is another way to assess the model 
+
+######## Graphically validate proportional odds using the sure package #######
+
+autoplot.clm(m1a, what = c("qq")) # most of the points fall along the line, so no violation of linearity
+autoplot.clm(m1a, what = c("fitted")) # the residuals do not show a clear pattern or trend
+autoplot.clm(m1a, what = c("covariate"), x = data$NewDAS) # scale test indicated no variance issues. This residual, covariate plots seems acceptable as well
+autoplot.clm(m1a, what = c("covariate"), x = data$Preprints)
+# N.B. - Interpreting residual plots is largely subjective! 
+
+#these results were used in the Fifth result paragraph and Table 2 of the publication
+
+```
+
+
+
+#Research Group figures (Internal)
+```{r}
+
+# Calculate the frequency and percentage for each 'Complete' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Complete) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+internal1 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Complete))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Completeness' Scores by ResGrp",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Complete") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal1)
+
+ggsave("internal1.png", internal1, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+
+```
+
+```{r}
+
+# Calculate the frequency and percentage for each 'Reuse' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Reuse) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+internal2 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Reuse))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Reusability' Scores by ResGrp",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Reuse") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal2)
+
+ggsave("internal2.png", internal2, width = 15, height = 10, units = "in", bg= "white")
+
+#these results were used for internal university meetings and presentations 
+
+
+```
+```{r}
+# Calculate the frequency and percentage for each 'Access' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Access) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+internal3 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Access))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Accessibility' Scores by ResGrp",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Access") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal3)
+
+ggsave("internal3.png", internal3, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+
+```
+```{r}
+# Calculate the frequency and percentage for each 'Licence' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Licence) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#D0A136", "#36D0A1","#50689B","#E5696F")
+
+# Creating the stacked bar chart with percentage labels
+internal4 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Licence))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Licence' Scores by ResGrp",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Licence") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal4)
+
+ggsave("internal4.png", internal4, width = 15, height = 10, units = "in", bg= "white")
+
+#these results were used for internal university meetings and presentations 
+
+
+```
+```{r}
+# Calculate the frequency and percentage for each 'DAS' score among the research Group
+long_data <- data %>%
+  count(ResGrp, NewDAS) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+# Custom colors
+colors <- c("Not Presented" = "gray", "Not Shared" = "#E5696F", "Shared" = "#50689B")
+
+# Creating the stacked bar chart with percentage labels
+DASinternal <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(NewDAS))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 4, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'DAS' Scores by ResGrp",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "DAS") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(DASinternal)
+ggsave("DASinternal.png", DASinternal, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+
+```
+
+```{r}
+complete4 <- data %>%
+  count(Reuse) %>%
+  mutate(percantage = n / sum(n)*100)
+
+print(complete4)
+```
+

@@ -1,0 +1,1956 @@
+---
+title: "Combined Code"
+author: "Haya"
+date: "2024-04-28"
+output: html_document
+---
+
+#Import the dataset
+```{r}
+#import the used library and the csv Data File
+
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyr)
+library(scales)
+library(MASS)
+
+
+data <- read.csv ("finaldata_openscience.csv")
+head(data)
+```
+#Paper/years
+```{r}
+# Count the number of papers per year
+aggregated_data <- data %>%
+  group_by(Year) %>%
+  summarise(total_papers = n())
+
+# Create the bar chart
+year_1 <- ggplot(aggregated_data, aes(x = as.factor(Year), y = total_papers)) +
+  geom_bar(stat = "identity", fill = "#1A56BB") +
+  geom_text(aes(label = total_papers), vjust = -0.5) +
+  labs(x = "Year", y = "Total Number of Papers", title = "Total Number of Papers by Year") +
+  theme_minimal()
+
+print(year_1)
+
+
+#This figure was not used in the publication 
+```
+
+#1 - Descriptive Statistics
+
+#paper/type
+```{r}
+type_frequency <- table(data$Type)
+print(type_frequency) 
+```
+
+#n% paper/year
+```{r}
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate frequency and percentage for each Type and Year
+summarized_data <- data %>%
+  group_by(Year, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+  
+print(summarized_data) 
+```
+
+#Papers/FAIR2016 ---- to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (overall)
+```{r}
+data <- data %>%
+  mutate(FAIR = ifelse(Year <= 2016, "Before or in 2016", "After 2016"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(FAIR) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals)
+```
+
+#Papers/FAIR2016_byType to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (depend on type)
+```{r}
+#Frequency and Percantage of paper before and After FAIR principles (2016)
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize, calculate frequency and percentage for each Type based on year
+summarized_data <- data %>%
+  mutate(Category = ifelse(Year <= 2016, "On/Before 2016", "After 2016")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) 
+```
+
+#Papers/COVID2020 ---- to categorise papers based on the year of publication compared to COVID 19 - 2020 (overall)
+
+```{r}
+data <- data %>%
+  mutate(COVID = ifelse(Year <= 2020, "Before or in 2020", "After 2020"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(COVID) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals) 
+```
+
+#Papers/COVID2020_byType ---- to categorise papers based on the year of publication compared to COVID 19 - 2020 (NCD vs InfD)
+```{r}
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize, calculate frequency and percentage for each Type based on year
+summarized_data <- data %>%
+  mutate(Category = ifelse(Year <= 2020, "On/Before 2020", "After 2020")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) 
+```
+#Plot_Papers/years --- the distribution of the included papers over the years
+```{r}
+aggregated_data <- data %>%
+  group_by(Year, Type) %>%
+  summarise(count = n(), .groups = "drop")
+
+# Create the clustered bar chart with numbers on top of the bars and specified colors
+year <- ggplot(aggregated_data, aes(x = as.factor(Year), y = count, fill = Type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5) +
+  scale_fill_manual(values = c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")) +
+  labs(x = "Year", y = "Number of Papers", title = "Number of Papers by Year") +
+  theme_minimal()
+
+print(year)
+
+ggsave("year.png", year, width = 10, height = 8, dpi = 300, bg="white")
+
+#this figure was not used in the publication
+```
+
+#DataShare ---Frequency and Percentage of the papers that share data (Data Sharing= Data Completeness score >1) Overall
+```{r}
+
+data <- data %>%
+  mutate(Period = ifelse(Complete > 1, "Shared", "No Share"))
+
+# Calculate the total number of papers for each period
+period_totals <- data %>%
+  group_by(Period) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Calculate the grand total of all papers
+grand_total <- sum(period_totals$Total)
+
+# Add a column for the percentage of each period's total relative to the grand total
+period_totals <- period_totals %>%
+  mutate(Percentage = (Total / grand_total) * 100)
+
+# Print the period totals and percentages
+print(period_totals) 
+#these results were used in the table 1 of the publication
+```
+
+
+#DataShare_byType --- Frequency and Percentage of the papers that share data (Data Sharing= Data Completeness score >1) by Type
+```{r}
+
+total_counts_by_type <- data %>%
+  group_by(Type) %>%
+  summarise(Total = n(), .groups = "drop")
+
+# Categorize based on Completeness, calculate frequency and percentage for each Type
+summarized_data <- data %>%
+  filter(Complete == 1 | Complete > 1) %>%
+  mutate(Category = ifelse(Complete == 1, "Completeness = 1", "Completeness > 1")) %>%
+  group_by(Category, Type) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts_by_type, by = "Type") %>%
+  mutate(Percentage = (count / Total) * 100)
+
+print(summarized_data) 
+#these results were used in the table 1 of the publication
+
+```
+
+#Preprint ---- Frequemcy and percentage of preprints 
+```{r}
+# Calculate frequency and percentage for each Preprints category, across all types
+preprints_summary <- data %>%
+  group_by(Preprints) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(preprints_summary$count)
+
+# Add a column for the percentage of each Preprints category relative to the overall total
+preprints_summary <- preprints_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+# Print the summary
+print(preprints_summary)
+
+# Frequency and Percentage of the papers with preprints
+data %>%
+  group_by(Type, Preprints) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+  arrange(Type, Preprints)
+#these results were used in the table 1 of the publication
+```
+
+#DAS -- Frequemcy and percentage of Data Availibilty Statement 
+```{r}
+DAS_summary <- data %>%
+  group_by(DAS) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(DAS_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+DAS_summary <- DAS_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(DAS_summary)
+
+data$DAS <- as.factor(data$DAS)
+
+# Frequency and Percentage of the papers with DAS in the publications
+data %>%
+  group_by(Type, DAS) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+  arrange(Type, DAS) 
+
+#these results were used in the table 1 of the publication
+```
+#CodeSharing --- Calculate frequency and percentage for Code Sharing
+```{r}
+CodeArchived_summary <- data %>%
+  group_by(CodeArchived) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(CodeArchived_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+CodeArchived_summary <- CodeArchived_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(CodeArchived_summary)
+
+# Frequency and Percentage of the papers that shared the code used
+data %>%
+  group_by(Type, CodeArchived) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, CodeArchived)
+
+#these results were used in the table 1 of the publication
+```
+
+#Analysis Program
+```{r}
+AnalysisPgrm_summary <- data %>%
+  group_by(AnalysisPgrm) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(AnalysisPgrm_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+AnalysisPgrm_summary <- AnalysisPgrm_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(AnalysisPgrm_summary)
+
+# Frequency and Percentage of the papers that shared the code used
+data %>%
+  group_by(Type, AnalysisPgrm) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, AnalysisPgrm)
+
+#these results were used in the table 1 of the publication
+```
+
+#Image --- Calculate frequency and percentage for Image
+```{r}
+Image_summary <- data %>%
+  group_by(Image) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(Image_summary$count)
+
+
+Image_summary <- Image_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(Image_summary)
+
+# Frequency and Percentage of the papers that shared the Image
+data %>%
+  group_by(Type, Image) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, Image)
+
+#these results were used in the table s5 of the publication
+```
+
+#Genomic --- Calculate frequency and percentage for Genomic
+```{r}
+Genomics_summary <- data %>%
+  group_by(Genomics) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(Genomics_summary$count)
+
+
+Genomics_summary <- Genomics_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(Genomics_summary)
+
+# Frequency and Percentage of the papers that shared the Genomics
+data %>%
+  group_by(Type, Genomics) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, Genomics)
+
+#these results were used in the table s5 of the publication
+```
+
+
+#Human --- Calculate frequency and percentage for Human
+```{r}
+Human_summary <- data %>%
+  group_by(Human) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(Human_summary$count)
+
+
+Human_summary <- Human_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(Human_summary)
+
+# Frequency and Percentage of the papers that shared the Human
+data %>%
+  group_by(Type, Human) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, Human)
+
+#these results were used in the table s5 of the publication
+```
+
+#Complete/type --- Calculate frequency and percentage for Completeness Score 
+```{r}
+Complete_summary <- data %>%
+  group_by(Complete) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(Complete_summary$count)
+
+
+Complete_summary <- Complete_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(Complete_summary)
+
+# Frequency and Percentage of the papers that shared the Complete
+data %>%
+  group_by(Type, Complete) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, Complete)
+
+```
+
+
+#Storage_Repository
+```{r}
+Storage_summary <- data %>%
+  group_by(Storage) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(Storage_summary$count)
+
+
+Storage_summary <- Storage_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(Storage_summary)
+
+# Frequency and Percentage of the papers that shared the Storage
+data %>%
+  group_by(Type, Storage) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(Type) %>%
+  mutate(total = sum(count), 
+         percentage = (count/total)*100) %>%
+  ungroup() %>%
+
+  arrange(Type, Storage)
+
+#these results were used in the table 1 of the publication
+```
+
+#Plot_Criteria 
+```{r}
+# Convert all relevant columns to factors first to avoid the error
+data <- data %>%
+  mutate(across(c(Complete, Reuse, Access, Licence), as.character), .groups = "drop")  # Converts to character to ensure compatibility
+
+# Reshape data to long format
+long_data <- data %>%
+  pivot_longer(cols = c(Complete, Reuse, Access, Licence), names_to = "Category", values_to = "Value") %>%
+  mutate(Value = as.character(Value))  # Ensure that Value is a character
+
+# Rename and reorder categories
+long_data$Category <- recode(long_data$Category, 
+                             "Complete" = "Completeness",
+                             "Reuse" = "Reusability",
+                             "Access" = "Accessibility",
+                             "Licence" = "Licence")
+long_data$Category <- factor(long_data$Category, levels = c("Completeness", "Reusability", "Accessibility", "Licence"))
+
+long_data <- long_data %>%
+  mutate(Value = factor(Value, levels = c("4", "3", "2", "1")))
+
+# Calculate counts and percentages
+long_data <- long_data %>%
+  group_by(Category, Value) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  ungroup() %>%
+  group_by(Category) %>%
+  mutate(Total = sum(Count),
+         Percentage = Count / Total * 100) %>%
+  ungroup() %>%
+  arrange(Category, desc(Value)) %>%
+  group_by(Category) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), ""),
+         CumPercentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+# Plot
+Figure_1 <- ggplot(long_data, aes(x = Category, y = Percentage, fill = Value)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")) +
+  labs(y = "Percentage", fill = "Score") +
+  
+  geom_text(aes(label = Label, y = CumPercentage), size = 10) +
+   theme(
+    axis.title = element_text(size = 14), # Increase axis titles
+    axis.text = element_text(size = 18),  # Increase axis text
+    legend.title = element_text(size = 12), # Increase legend title
+    legend.text = element_text(size = 14)  # Increase legend text
+  ) +
+  ylim(0, 100)
+
+# Show the plot
+print(Figure_1) #these results were used in the figure 1 of the publication
+
+ggsave("Figure_1.png", Figure_1, width = 15, height = 10, units = "in", bg = "white")
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(forcats)
+
+# Convert all relevant columns to factors first to avoid the error
+data <- data %>%
+  mutate(across(c(Complete, Reuse, Access, Licence), as.character))  # Converts to character to ensure compatibility
+
+# Reshape data to long format
+long_data <- data %>%
+  pivot_longer(cols = c(Complete, Reuse, Access, Licence), names_to = "Category", values_to = "Value") %>%
+  mutate(Value = as.character(Value))  # Ensure that Value is a character
+
+# Rename and reorder categories
+long_data$Category <- recode(long_data$Category, 
+                             "Complete" = "Completeness",
+                             "Reuse" = "Reusability",
+                             "Access" = "Accessibility",
+                             "Licence" = "Licence")
+long_data$Category <- factor(long_data$Category, levels = c("Completeness", "Reusability", "Accessibility", "Licence"))
+
+long_data <- long_data %>%
+  mutate(Value = factor(Value, levels = c("4", "3", "2", "1")))
+
+# Calculate counts and percentages
+long_data <- long_data %>%
+  group_by(Category, Value) %>%
+  summarise(Count = n(), .groups = "drop") %>%
+  ungroup() %>%
+  group_by(Category) %>%
+  mutate(Total = sum(Count),
+         Percentage = Count / Total * 100) %>%
+  ungroup() %>%
+  arrange(Category, desc(Value)) %>%
+  group_by(Category) %>%
+  mutate(Label = ifelse(Count > 5, paste0(Count, " (", round(Percentage, 1), "%)"), ""),
+         CumCount = cumsum(Count) - (0.5 * Count)) %>%
+  ungroup()
+
+# Plot
+Figure_1 <- ggplot(long_data, aes(x = Category, y = Count, fill = Value)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")) +
+  labs(y = "Count", fill = "Score") +
+  geom_text(aes(label = Label, y = CumCount), size = 10) +
+  theme(
+    axis.title = element_text(size = 20), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 14), # Increase legend title
+    legend.text = element_text(size = 16)  # Increase legend text
+  ) +
+  ylim(0, NA)
+
+# Show the plot
+print(Figure_1) #these results were used in the figure 1 of the publication
+
+ggsave("Figure_1.png", Figure_1, width = 15, height = 10, units = "in", bg = "white")
+
+```
+
+```{r}
+aggregated_data <- data %>%
+  group_by(Type, Complete) %>%
+  summarise(count = n(), .groups = "drop")
+
+# Create the clustered bar chart with numbers on top of the bars and specified colors
+Complete <- ggplot(aggregated_data, aes(x = as.factor(Type), y = count, fill = Complete)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5) +
+  scale_fill_manual(values = c("#5271A9", "#B77AB9","#B8D96C","#E88D5E")) +
+  labs(x = "Year", y = "Number of Papers", title = "Number of Papers by Year") +
+  theme_minimal()
+
+print(Complete)
+
+ggsave("Complete.png", Complete, width = 10, height = 8, dpi = 300, bg="white")
+
+#this figur was not used
+```
+
+#Plot_Complete/Year
+```{r}
+# Calculate the frequency and percentage for each 'Complete' score within each 'Year'
+long_data <- data %>%
+  count(Year, Complete) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_1 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Complete))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 7, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Completeness") +
+  theme(
+    axis.title = element_text(size = 20), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_1)
+
+ggsave("Figure_2_1.png", Figure_2_1, width = 15, height = 10, units = "in", bg = "white")
+
+```
+#Plot_Reuse/Year
+```{r}
+# Calculate the frequency and percentage for each 'Reusability' score within each 'Year'
+long_data <- data %>%
+  count(Year, Reuse) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_2 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Reuse))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 7, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Reusability") +
+  theme(
+    axis.title = element_text(size = 20), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_2)
+
+ggsave("Figure_2_2.png", Figure_2_2, width = 15, height = 10, units = "in", bg = "white")
+```
+#Plot_Access/Year
+```{r}
+# Calculate the frequency and percentage for each 'Accessibility' score within each 'Year'
+long_data <- data %>%
+  count(Year, Access) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_3 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Access))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 7, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Accessibility") +
+  theme(
+    axis.title = element_text(size = 20), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_3)
+
+ggsave("Figure_2_3.png", Figure_2_3, width = 15, height = 10, units = "in", bg = "white")
+```
+#Plot_Licence/Year
+```{r}
+# Calculate the frequency and percentage for each 'Licence' score within each 'Year'
+long_data <- data %>%
+  count(Year, Licence) %>%
+  group_by(Year) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+Figure_2_4 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Licence))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  geom_text(
+    aes(label = Label, y = Percentage), 
+    size = 7, 
+    color = "black", 
+    position = position_fill(vjust = 0.5)
+  ) +
+  scale_fill_manual(values = colors) +
+  labs(x = "Year",
+       y = "Percentage",
+       fill = "Licence") +
+  theme(
+    axis.title = element_text(size = 20), # Increase axis titles
+    axis.text = element_text(size = 20),  # Increase axis text
+    legend.title = element_text(size = 18), # Increase legend title
+    legend.text = element_text(size = 20)  # Increase legend text
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(Figure_2_4)
+
+ggsave("Figure_2_4.png", Figure_2_4, width = 15, height = 10, units = "in", bg = "white")
+```
+#Plot_Criteria/Year
+```{r}
+library(patchwork)
+Figure_2 <- Figure_2_1 + Figure_2_2 + Figure_2_3 + Figure_2_4 +
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_2)
+
+ggsave("Figure_2.png", Figure_2, width = 15, height = 10, units = "in")
+
+#these results were used in the Figure 2 of the publication
+```
+
+#Plot_DAS/Completeness Score
+```{r}
+# Transform the DAS variable
+data <- data %>%
+  mutate(NewDAS = case_when(
+    is.na(DAS) ~ "Not Presented",
+    DAS == 1 ~ "Shared",
+    DAS == 0 ~ "Not Shared",
+    TRUE ~ as.character(DAS)))  # This line is just a fallback to handle unexpected values
+
+class(data$NewDAS)
+
+# Convert the new DAS variable to a factor for plotting
+data$NewDAS <- factor(data$NewDAS, levels = c("Not Presented", "Not Shared", "Shared"))
+
+# Calculate frequency and percentage for each combination of 'Complete' score and 'NewDAS' status
+das_frequency <- data %>%
+  group_by(Complete, NewDAS) %>%
+  summarise(Frequency = n(), .groups = 'drop') %>%
+  mutate(Percentage = (Frequency / sum(Frequency)) * 100)
+
+# Define specific colors for the new DAS values
+colors <- c("Not Presented" = "gray", "Not Shared" = "#E5696F", "Shared" = "#50689B")
+
+# Create the plot
+Figure_4 <- ggplot(das_frequency, aes(x = as.factor(Complete), y = Frequency, fill = NewDAS)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Percentage, 1), "% (", Frequency, ")")),
+            position = position_dodge(width = 0.9), vjust = -0.25, size = 3.5) +
+  scale_fill_manual(values = colors, name = "DAS Status") +
+  theme_bw() +  # Use theme_bw for a white background
+   theme(
+    axis.title = element_text(size = 10), # Increase axis titles
+    axis.text = element_text(size = 16),  # Increase axis text
+    legend.title = element_text(size = 14), # Increase legend title
+    legend.text = element_text(size = 16)  # Increase legend text
+  ) +
+  labs(x = "Completeness Score", y = "Frequency") +
+  theme(legend.position = "bottom")
+
+# Print and save the plot
+print(Figure_4)
+ggsave("Figure_4.png", Figure_4, width = 8, height = 6,  bg = "white")
+
+#these results were used in the Figure 3 of the publication
+
+
+```
+
+```{r}
+NewDAS_summary <- data %>%
+  group_by(NewDAS) %>%
+  summarise(count = n(), .groups = "drop") 
+
+# Calculate the overall total
+overall_total <- sum(NewDAS_summary$count)
+
+# Add a column for the percentage of each DAS category relative to the overall total
+NewDAS_summary <- NewDAS_summary %>%
+  mutate(percentage = (count / overall_total) * 100)
+
+print(NewDAS_summary)
+```
+
+
+
+#2 - Ordinal regression models (Scoring Criteria and year)
+
+```{r}
+unique_authors <- unique(data$ResGrp)
+
+# Get the total number of unique authors
+num_unique_authors <- length(unique_authors)
+
+# Print the number of unique authors
+cat("Number of unique authors:", num_unique_authors, "\n")
+```
+
+#Ordinal regression model_Library
+```{r}
+library(ordinal) # ordinal logistic regression: cumulative link mixed models, clm function is in this package; For a detailed explanation of the package and the functions available see: https://cran.r-project.org/web/packages/ordinal/vignettes/clm_article.pdf
+library(VGAM) # more ordinal regression 
+library(dplyr) 
+library(chisq.posthoc.test) # If needed
+library(gmodels) # For SPSS style chi-sq/ contingency tables
+library(emmeans)
+library(sure)
+library(ggplot2)
+
+
+#link https://www.bookdown.org/rwnahhas/RMPH/blr-ordinal.html
+
+```
+
+```{r}
+data$Complete <- factor(data$Complete, ordered = TRUE)
+data$Reuse <- factor(data$Reuse, ordered = TRUE)
+data$Access <- factor(data$Access, ordered = TRUE)
+data$Licence <- factor(data$Licence, ordered = TRUE)
+
+levels(data$Complete)
+levels(data$Reuse)
+levels(data$Access)
+levels(data$Licence)
+```
+
+
+
+
+```{r}
+# Calculate Odds Ratios and Confidence Intervals
+coef_estimates <- coef(summary(m1a))  # Extract coefficients and standard errors
+or <- exp(coef_estimates[, "Estimate"])  # Calculate Odds Ratios
+se_log_or <- coef_estimates[, "Std. Error"]
+lower_ci <- exp(coef_estimates[, "Estimate"] - 1.96 * se_log_or)
+upper_ci <- exp(coef_estimates[, "Estimate"] + 1.96 * se_log_or)
+
+# Creating a data frame to display Odds Ratios and 95% CIs nicely
+results <- data.frame(
+  OddsRatio = or,
+  LowerCI = lower_ci,
+  UpperCI = upper_ci
+)
+rownames(results) <- names(or)
+print(results)
+
+#these results were used in the table s2
+```
+
+
+```{r}
+library(ordinal)
+library(lme4)
+
+# Assuming 'data' is your dataset with columns 'Complete', 'Year', 'ResGrp'
+
+# Create a variable for years since 2013
+data$Y <- data$Year - 2013
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Complete ~ Y + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+CI <- confint(m1a)
+results <- data.frame(
+  OR    = exp(summary_m1a$coefficients[, "Estimate"]),
+  lower = exp(CI[, "2.5 %"]),
+  upper = exp(CI[, "97.5 %"])
+)
+print(results)
+
+
+#these results were used in the table s2
+```
+
+
+```{r}
+library(mgcv)
+
+mod_gam <- gam(Complete ~ Y+s(Y) + s(ResGrp, bs='re'), family=ocat(R=4),
+    method='REML',
+    data=data %>% mutate(Complete=as.numeric(Complete),
+                         ResGrp = as.factor(ResGrp)))
+print(mod_gam)
+
+# Load the mgcv package if not already loaded
+# library(mgcv)
+
+# Plot smooth terms
+par(mfrow = c(1, 2))  # Set up a 1x2 grid for plots
+
+# Plot for s(Y)
+plot(mod_gam, select = 2, main = "Smooth Term s(Y)")
+
+# Plot for s(ResGrp)
+plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
+
+# Reset plotting layout
+par(mfrow = c(1, 1))
+
+#this code was to show the type pf relationship between the independent variable and the dependent variable -looking for a linear relationship-
+```
+
+
+#ORM_Reuse
+```{r}
+m1a <- clm(Reuse ~ Y, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+predict(m1a, newdata=expand.grid(Y = 1:10), se.fit=TRUE, type='cum.prob')
+
+CI <-  confint(m1a)
+data.frame(
+  OR    = exp(m1a$coefficients),
+  lower = exp(CI[1]),
+  upper = exp(CI[2])
+)
+
+range(data$Y)
+
+#these results were used in the table s2
+```
+
+
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Reuse ~ Y + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+CI <- confint(m1a)
+results <- data.frame(
+  OR    = exp(summary_m1a$coefficients[, "Estimate"]),
+  lower = exp(CI[, "2.5 %"]),
+  upper = exp(CI[, "97.5 %"])
+)
+print(results)
+
+#these results were used in the table s2
+```
+
+```{r}
+mod_gam <- gam(Reuse ~ Y+s(Y) + s(ResGrp, bs='re'), family=ocat(R=4),
+    method='REML',
+    data=data %>% mutate(Reuse=as.numeric(Reuse),
+                         ResGrp = as.factor(ResGrp)))
+print(mod_gam)
+
+# Load the mgcv package if not already loaded
+# library(mgcv)
+
+# Plot smooth terms
+par(mfrow = c(1, 2))  # Set up a 1x2 grid for plots
+
+# Plot for s(Y)
+plot(mod_gam, select = 2, main = "Smooth Term s(Y)")
+
+# Plot for s(ResGrp)
+plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
+
+# Reset plotting layout
+par(mfrow = c(1, 1))
+
+```
+
+
+#ORM_Access
+```{r}
+m1a <- clm(Access ~ Y, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+predict(m1a, newdata=expand.grid(Y = 1:10), se.fit=TRUE, type='cum.prob')
+
+CI <-  confint(m1a)
+data.frame(
+  OR    = exp(m1a$coefficients),
+  lower = exp(CI[1]),
+  upper = exp(CI[2])
+)
+
+range(data$Y)
+#these results were used in the table s2
+```
+
+
+
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Access ~ Y + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+CI <- confint(m1a)
+results <- data.frame(
+  OR    = exp(summary_m1a$coefficients[, "Estimate"]),
+  lower = exp(CI[, "2.5 %"]),
+  upper = exp(CI[, "97.5 %"])
+)
+print(results)
+```
+
+
+```{r}
+mod_gam <- gam(Access ~ Y+s(Y) + s(ResGrp, bs='re'), family=ocat(R=4),
+    method='REML',
+    data=data %>% mutate(Access=as.numeric(Access),
+                         ResGrp = as.factor(ResGrp)))
+print(mod_gam)
+
+# Load the mgcv package if not already loaded
+# library(mgcv)
+
+# Plot smooth terms
+par(mfrow = c(1, 2))  # Set up a 1x2 grid for plots
+
+# Plot for s(Y)
+plot(mod_gam, select = 2, main = "Smooth Term s(Y)")
+
+# Plot for s(ResGrp)
+plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
+
+# Reset plotting layout
+par(mfrow = c(1, 1))
+
+
+```
+#ORM_Licence
+```{r}
+m1a <- clm(Licence ~ Y, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+predict(m1a, newdata=expand.grid(Y = 1:10), se.fit=TRUE, type='cum.prob')
+
+CI <-  confint(m1a)
+data.frame(
+  OR    = exp(m1a$coefficients),
+  lower = exp(CI[1]),
+  upper = exp(CI[2])
+)
+
+range(data$Y)
+
+#these results were used in the table s2
+```
+
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Licence ~ Y + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+CI <- confint(m1a)
+results <- data.frame(
+  OR    = exp(summary_m1a$coefficients[, "Estimate"]),
+  lower = exp(CI[, "2.5 %"]),
+  upper = exp(CI[, "97.5 %"])
+)
+print(results)
+```
+
+```{r}
+mod_gam <- gam(Licence ~ Y+s(Y) + s(ResGrp, bs='re'), family=ocat(R=4),
+    method='REML',
+    data=data %>% mutate(Licence=as.numeric(Licence),
+                         ResGrp = as.factor(ResGrp)))
+print(mod_gam)
+
+# Load the mgcv package if not already loaded
+# library(mgcv)
+
+# Plot smooth terms
+par(mfrow = c(1, 2))  # Set up a 1x2 grid for plots
+
+# Plot for s(Y)
+plot(mod_gam, select = 2, main = "Smooth Term s(Y)")
+
+# Plot for s(ResGrp)
+plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
+
+# Reset plotting layout
+par(mfrow = c(1, 1))
+
+
+```
+#Trying
+
+```{r}
+m1a <- clm(Complete ~ Y + FAIR, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+
+CI <-  confint(m1a)
+data.frame(
+  OR    = exp(m1a$coefficients),
+  lower = exp(CI[1]),
+  upper = exp(CI[2])
+)
+
+range(data$Y)
+```
+#ORMField_Complete
+```{r} 
+data$Type <- as.factor(data$Type)
+
+levels(data$Type)
+
+# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+data$Type <- relevel(data$Type, ref = "BioTech")
+
+m1a <- clm(Complete ~ Type, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+data$Complete <- as.factor(data$Complete)
+
+# Plot the distribution of completeness scores by type
+Dist1 <- ggplot(data, aes(x = Complete, fill = Type)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Type) +
+  labs(title = "Distribution of Completeness Scores by Research Type", x = "Completeness Score", y = "Count")
+
+print(Dist1)
+ggsave("Dist1.png", Dist1, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the table s3 and Figure S1
+
+```
+#ORMField_Complete +RE
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Complete ~ Type + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s3 and Figure S1
+```
+
+
+
+#ORMField_Reuse 
+```{r}
+
+# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+data$Type <- relevel(data$Type, ref = "BioTech")
+
+m1a <- clm(Reuse ~ Type, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+# Plot the distribution of completeness scores by type
+Dist2 <- ggplot(data, aes(x = Reuse, fill = Type)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Type) +
+  labs(title = "Distribution of Reusability Scores by Research Type", x = "Reusability Score", y = "Count")
+
+print(Dist2)
+ggsave("Dist2.png", Dist2, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the table s3 and Figure S1
+```
+
+#ORMField_Reuse +RE
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Reuse ~ Type + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s3 and Figure S1
+```
+#ORM_DAS/PREField_REUSE +RE
+```{r}
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Reuse ~ Type + NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s3 and Figure S1
+```
+
+#ORMField_Access
+```{r}
+# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+data$Type <- relevel(data$Type, ref = "BioTech")
+
+m1a <- clm(Access ~ Type, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+# Plot the distribution of completeness scores by type
+Dist3 <- ggplot(data, aes(x = Access, fill = Type)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Type) +
+  labs(title = "Distribution of Accessibility Scores by Research Type", x = "Accessibility Score", y = "Count")
+
+print(Dist3)
+ggsave("Dist3.png", Dist3, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the table s3 and Figure S1
+```
+#ORMField_Access +RE
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Access ~ Type + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s3 and Figure S1
+```
+#ORM_DAS/PREField_Access +RE
+```{r}
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Access ~ Type + NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s3 and Figure S1
+```
+
+#ORMField_Licence
+```{r}
+# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+data$Type <- relevel(data$Type, ref = "BioTech")
+
+m1a <- clm(Licence ~ Type, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+# Plot the distribution of completeness scores by type
+Dist4 <- ggplot(data, aes(x = Licence, fill = Type)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Type) +
+  labs(title = "Distribution of Licence Scores by Research Type", x = "Licence Score", y = "Count")
+
+print(Dist4)
+ggsave("Dist4.png", Dist4, width = 15, height = 10, units = "in", bg = "white")
+
+#these results were used in the table s3 and Figure S1
+
+```
+
+#ORMField_Licence +RE
+```{r}
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Licence ~ Type + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+#these results were used in the table s3 and Figure S1
+```
+
+```{r}
+Dist <- Dist1 + Dist2 + Dist3 + Dist4 +
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Dist)
+
+ggsave("Dist.png", Dist, width = 15, height = 10, units = "in")
+
+#these results were used in the table s3 and Figure S1
+```
+
+
+#ORM_DAS/PRE_Complete +RE
+```{r}
+
+data$NewDAS <- as.factor(data$NewDAS)
+data$Preprints <- as.factor(data$Preprints)
+
+# Set "NA" as the reference level
+data$NewDAS <- relevel(data$NewDAS, ref = "Not Presented")
+
+# Verify the levels
+levels(data$NewDAS)
+
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Complete ~  NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s5
+```
+#ORM_DAS/PRE_Reuse +RE
+```{r}
+
+data$NewDAS <- as.factor(data$NewDAS)
+data$Preprints <- as.factor(data$Preprints)
+
+# Set "NA" as the reference level
+data$NewDAS <- relevel(data$NewDAS, ref = "Not Presented")
+
+# Verify the levels
+levels(data$NewDAS)
+
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Reuse ~  NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s5
+```
+#ORM_DAS/PRE_Reuse +RE
+```{r}
+
+data$NewDAS <- as.factor(data$NewDAS)
+data$Preprints <- as.factor(data$Preprints)
+
+# Set "NA" as the reference level
+data$NewDAS <- relevel(data$NewDAS, ref = "Not Presented")
+
+# Verify the levels
+levels(data$NewDAS)
+
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Reuse ~  NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s5
+```
+
+#ORM_DAS/PRE_Licence +RE
+```{r}
+
+data$NewDAS <- as.factor(data$NewDAS)
+data$Preprints <- as.factor(data$Preprints)
+
+# Set "NA" as the reference level
+data$NewDAS <- relevel(data$NewDAS, ref = "Not Presented")
+
+# Verify the levels
+levels(data$NewDAS)
+
+
+# Fit a mixed-effects ordinal regression model with random intercepts for authors
+m1a <- clmm(Licence ~  NewDAS + Preprints + (1 | ResGrp), data = data)
+
+# Print the summary of the model
+summary_m1a <- summary(m1a)
+print(summary_m1a)
+print(summary_m1a$ranef.var)
+
+# Calculate and print the odds ratios with confidence intervals
+coefficients <- summary_m1a$coefficients
+coef_estimates <- coefficients[, "Estimate"]
+coef_se <- coefficients[, "Std. Error"]
+
+# Calculate odds ratios
+odds_ratios <- exp(coef_estimates)
+
+# Calculate the 95% confidence intervals
+lower_ci <- exp(coef_estimates - 1.96 * coef_se)
+upper_ci <- exp(coef_estimates + 1.96 * coef_se)
+
+# Combine into a data frame for easier viewing
+results <- data.frame(
+  Coefficient = coef_estimates,
+  OR = odds_ratios,
+  Lower_CI = lower_ci,
+  Upper_CI = upper_ci
+)
+
+# Print the results
+print(results)
+
+#these results were used in the table s5
+```
+#Complete/ResGrp
+```{r}
+ #Calculate the frequency and percentage for each 'Complete' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Complete) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Complete = factor(Complete, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+internal1 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Complete))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Completeness' Scores by Research Groups",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Complete") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal1)
+
+ggsave("internal1.png", internal1, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+```
+
+#Reuse/ResGrp
+```{r}
+#Calculate the frequency and percentage for each 'Complete' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Reuse) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Reuse = factor(Reuse, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+internal2 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Reuse))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Reusability' Scores by Research Groups",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Reuse") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal2)
+
+ggsave("internal2.png", internal2, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+```
+
+#Access/ResGrp
+```{r}
+#Calculate the frequency and percentage for each 'Complete' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Access) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Access = factor(Access, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+internal3 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Access))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Accessibility' Scores by Research Groups",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Access") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal3)
+
+ggsave("internal3.png", internal3, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+```
+
+#Licence/ResGrp
+```{r}
+#Calculate the frequency and percentage for each 'Complete' score among the research Group
+long_data <- data %>%
+  count(ResGrp, Licence) %>%
+  group_by(ResGrp) %>%
+  mutate(Percentage = n / sum(n) * 100) %>%
+  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), "")) %>%
+  mutate(Cumulative_Percentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
+  ungroup()
+
+long_data <- long_data %>%
+  mutate(Licence = factor(Licence, levels = c("4", "3", "2", "1")))
+
+# Custom colors
+colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
+
+# Creating the stacked bar chart with percentage labels
+internal4 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.factor(Licence))) +
+  geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
+  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribution of 'Licence' Scores by Research Groups",
+       x = "ResGrp",
+       y = "Proportion",
+       fill = "Licence") +
+  theme_minimal() +
+  scale_x_discrete(name = "ResGrp", labels = unique(long_data$ResGrp)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+
+# Print the plot
+print(internal4)
+
+ggsave("internal4.png", internal4, width = 15, height = 10, units = "in", bg= "white")
+
+
+#these results were used for internal university meetings and presentations 
+```
+
