@@ -1,4 +1,4 @@
-# Dataset for "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
+# Project_1: "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
 
 ## Authors:
 Haya Deeb, Hwee Yun Wong, Trisha Usman, Megan A. M. Kutzer, Tomasz Zieliński, Andrew J. Millar*.  
@@ -23,7 +23,7 @@ These documents form the cornerstone of the findings presented in this preprint:
 
 ------------------------------------------------------------------
 
-## Dataset Folder/File Overview
+## Project_1 Folder/File Overview
 
 |-- Figures  
 |-- Biosciences_Publications_Dataset_2024.xlsx  
@@ -34,7 +34,7 @@ These documents form the cornerstone of the findings presented in this preprint:
 
 -------------------------------------------------------------------
 
-## Dataset Folder Description
+## Project_1 Folder Description
 
 ### 1. Biosciences_Publications_Dataset_2024
 
