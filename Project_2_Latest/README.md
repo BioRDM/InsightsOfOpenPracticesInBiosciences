@@ -1,5 +1,4 @@
-# Dataset_Version 2 for 
-# "A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
+# Project_2_Latest:"A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
 
 ## Authors:
 Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Tomasz Zieliński 1, Andrew J. Millar 1*.  
@@ -17,9 +16,9 @@ Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Tri
 
 Open science fundamentally reshapes the accessibility, transparency, and collaborative nature of scientific discovery. This study provides a comprehensive evaluation of both the openness and the adherence to FAIR principles (Findable, Accessible, Interoperable, and Reusable) in the context of data-sharing practices in the biosciences at the University of Edinburgh over the last decade, from 2014 to 2023. This evaluation encompassing 555 research papers spanning key areas such as biotechnology, regenerative medicine, infectious diseases, and non-communicable diseases forms the basis of our analysis.
 
-### 2. DataSet_v2:
+### 2. Project_2_Latest:
 
-DataSet_v2 represents an updated and expanded version of the initial dataset, DataSet_v1. While the first version captured essential publications up until 2022, DataSet_v2 extends the scope by incorporating publications through to 2023. This new dataset integrates an added selection of 555 publications, significantly enlarging the corpus and broadening the analytical spectrum compared to DataSet_v1.
+Project_2_Latest represents an updated and expanded version of the initial project, Project_1. While the first version captured essential publications up until 2022, Project_2_Latest extends the scope by incorporating publications through to 2023. This new Project_2_Latest integrates an added selection of 555 publications, significantly enlarging the corpus and broadening the analytical spectrum compared to Project_1.
 
 ### 3. Data Reuse:
 
@@ -32,7 +31,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 ------------------------------------------------------------------
 
-## DataSet_v2: Folder/File Overview
+## Project_2_Latest: Folder/File Overview
 
 |-- Figures_V2  
 |-- finaldata_openscience.xlsx  
@@ -41,7 +40,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 -------------------------------------------------------------------
 
-## DataSet_v2: Description
+## Project_2_Latest: Description
 
 ### 1. finaldata_openscience
 
