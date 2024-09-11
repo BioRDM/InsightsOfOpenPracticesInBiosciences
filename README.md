@@ -31,5 +31,5 @@ This folder conatins the outcomes of the first project, centered on publications
 ### 2. Project_2_Latest
 This folder contains the outcomes of the second project, encompassing publications in biotechnology, regenerative medicine, infectious diseases, and non-communicable diseases. DataSet_v2 includes all publications from the previous project (DataSet_V1) plus new additions, totaling 555 publications from 2014 to 2023. This project builds upon the first by integrating prior data with new data, representing an advanced phase of our ongoing research. this folder, DataSet_v2, contains all the data outputs and analytical results of this comprehensive second project.
 
-### 3. licence
+### 3. Licence
 The licence file in this repository stipulates that all content is protected under the Creative Commons Attribution 4.0 International License (CC BY 4.0). 
