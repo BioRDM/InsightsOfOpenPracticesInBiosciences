@@ -1,7 +1,11 @@
-# Dataset for "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
+# Dataset_Version 2 for 
+# "A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
 
 ## Authors:
-Haya Deeb, Hwee Yun Wong, Trisha Usman, Megan A. M. Kutzer, Tomasz Zieliński, Andrew J. Millar*.  
+Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Tomasz Zieliński 1, Andrew J. Millar 1*.  
+
+1: Centre for Engineering Biology and School of Biological Sciences, University of Edinburgh, EH9 3JF, UK. 
+2: Institute of Ecology and Evolution and School of Biological Sciences, University of Edinburgh, Edinburgh EH8 9AA, UK 
 
 * For correspondence: Andrew Millar (andrew.millar@ed.ac.uk)
 
@@ -9,40 +13,46 @@ Haya Deeb, Hwee Yun Wong, Trisha Usman, Megan A. M. Kutzer, Tomasz Zieliński, A
 
 ## General Information
 
-### 1. Abstract: 
+### 1. Abstract:
 
-The evolution of scientific research now emphasizes Open Data's role in fostering transparency and collaboration. This study evaluates the University of Edinburgh's progress in adopting open data practices, particularly since its 2021 open research policy. Our analysis analyses biosciences research data sharing from 2014 to 2022, reviewing 193 papers for their adherence to Openness and FAIRness criteria: Completeness, Reusability, Accessibility, and Licensing. Findings reveal an uptick in data completeness and reusability, with genome data being shared more frequently than image data. Data availability statements (DAS) and preprint sharing show a strong correlation with higher Openness and FAIRness scores. Furthermore, the FAIR principal implementation in 2016 had a positive impact on data reusability and a notable increase in DAS. On the other hand, the COVID-19 pandemic shows a substantial increase in preprint sharing and a continued trend towards open data sharing, while also resulting in significant improvements in 'Complete,' 'Reuse,' and 'Access' scores. This paper spotlights The University of Edinburgh's journey towards open data, addressing the changes and advocating for best practices to nurture this progression.
+Open science fundamentally reshapes the accessibility, transparency, and collaborative nature of scientific discovery. This study provides a comprehensive evaluation of both the openness and the adherence to FAIR principles (Findable, Accessible, Interoperable, and Reusable) in the context of data-sharing practices in the biosciences at the University of Edinburgh over the last decade, from 2014 to 2023. This evaluation encompassing 555 research papers spanning key areas such as biotechnology, regenerative medicine, infectious diseases, and non-communicable diseases forms the basis of our analysis.
 
-### 2.Data Reuse:
+### 2. DataSet_v2:
 
-This dataset is provided to facilitate further research and analysis in the field of Open Data in biosciences.Researchers are encouraged to use this data to replicate study findings, conduct meta-analyses, or extend the research into new areas.
+DataSet_v2 represents an updated and expanded version of the initial dataset, DataSet_v1. While the first version captured essential publications up until 2022, DataSet_v2 extends the scope by incorporating publications through to 2023. This new dataset integrates an added selection of 555 publications, significantly enlarging the corpus and broadening the analytical spectrum compared to DataSet_v1.
+
+### 3. Data Reuse:
+
+This dataset is provided to facilitate further research and analysis in the field of Open Data in biosciences.Researchers are encouraged to use this data to replicate study findings, conduct meta-analyses, or extend the research into new areas. 
 Before reusing the data, please review the accompanying variable descriptions and usage guidelines to ensure accurate interpretation. Users are expected to reference this dataset according to the citation guidelines provided and adhere to the licensing terms outlined. For any modifications, enhancements, or distributions, we urge users to maintain the integrity of the original data and provide transparent documentation of any data processing steps.
+
+### 4. Protocol:
+To ensure the reproducibility of our study and maintain transparency in our methods, detailed protocols are accessible on Protocol.io and a standardised Excel sheet template for data extraction is available to facilitate consistent data analysis.
+https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2 
 
 ------------------------------------------------------------------
 
-## Dataset Folder/File Overview
+## DataSet_v2: Folder/File Overview
 
-|-- Figures  
-|-- Biosciences_Publications_Dataset_2024.xlsx  
-|-- Biosciences_Publications_Dataset_2024.csv  
-|-- Biosciences_Project_RMarkdown_Code_Version1.Rmd  
-|-- Biosciences_Project_RMarkdown_Code_Version1.pdf  
-|-- Supplementary_Material.pdf  
+|-- Figures_V2  
+|-- finaldata_openscience.xlsx  
+|-- finaldata_openscience_2024.csv  
+|-- DataSet2_Code.Rmd 
 
 -------------------------------------------------------------------
 
-## Dataset Folder Description
+## DataSet_v2: Description
 
-### 1. Biosciences_Publications_Dataset_2024
+### 1. finaldata_openscience
 
 This dataset, derived from a comprehensive analysis of selected publications in the field of biosciences, is presented in CSV format. It is designed for use with statistical software, such as RStudio, to facilitate detailed analysis.
 CSV File Structure: The dataset contains rows corresponding to selected publications, each characterized by a set of variables critical to our study. The columns in the CSV file represent these variables.
 
-#### Excel File Structure (Biosciences_Publications_Dataset_2024.xlsx)
+#### Excel File Structure (finaldata_openscience.xlsx)
 * Sheet 1 (Dataset): Contains rows of selected publications and columns representing the variables used in our analysis.The raws that are highlighted in yellow, are the papers that have been randomly selected for reassessing   
 * Sheet 2 (Variable Descriptions): Provides a detailed explanation of each variable and the values they represent.
 
-#### CSV File (Biosciences_Publications_Dataset_2024.csv)
+#### CSV File (finaldata_openscience.csv)
 The CSV file is derived from Sheet 1 of the Excel file and was imported into RStudio for analysis.
 
 #### Variable Descriptions
@@ -68,16 +78,18 @@ The dataset comprises the following variables:
 | Licence       |Clarity and accessibility of the data usage license -(Numeric 1-4)  
 | Image         |Image data sharing status -(Binary/NA)  
 | Genomics      |Genomic data sharing status -(Binary/NA)  
+| Human         |Human data sharing status  -(Binary/NA)
+| Repository    |Name of the repository  -(text)
+| Storage       |Re-Name the repository  variables -(Categorical)
+| Rescored      | If the paper has been randomaly selected to be rescored for quality - (Binary)
 
 
-### RMarkdown Code 
 
-##### Biosciences_Project_RMarkdown_Code_Version1.Rmd
+### 2. RMarkdown Code 
+
+##### DataSet2_Code.Rmd
 The RMarkdown code file encompasses all the code used to analyse the dataset and generate the results presented in the paper and supplementary materials. Each section of the code is titled for ease of navigation, and comments within the code provide explanations and context. Before each statistical test, the assumptions are assessed and documented within the corresponding code chunk.
 Each code chunk in the RMarkdown file is clearly referenced to indicate where its results are presented in the paper, whether in the main text, figures, or tables. This cross-referencing ensures that readers can easily locate the source of each result and understand how it contributes to the findings of the research.
-
-##### Biosciences_Project_RMarkdown_Code_Version1.pdf
-The provided PDF is a knitted version of the RMarkdown code, presenting a static and complete view of the code, figures, and tables as outputs. This format enhances accessibility, allowing those not versed with RStudio or RMarkdown to easily view and share the research findings. It also acts as an archival record, capturing the code in a fixed form to preserve the analysis for future reproducibility. Additionally, the PDF format offers the convenience of a quick review or a printout of the research methods and outcomes, streamlining the understanding of the study's methodology and findings in one document.
 
 
 **Usage Instructions:** 
@@ -97,10 +109,12 @@ To use the RMarkdown code
   - VGAM  
   - gmodels  
   - emmeans  
-  - reshape2  
+  - reshape2
+  - chisq.posthoc.test
+  - sure
+  - forcats
+  - lme4  
 - Run each code chunk sequentially to reproduce the analyses and figures from our study.
 
-
-#### Supplementary material (Supplementary_Material.pdf)
-The supplementary material contains additional results in the form of figures and tables that are referenced in specific sections of the paper. These supplementary items offer further support and elucidation of the results discussed in the main text of the publication.
-
+### 3. Figures_V2 
+Thid folder contains all figures generated from the provided code, which have been utilised within the publication
