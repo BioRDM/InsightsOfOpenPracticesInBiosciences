@@ -16,14 +16,16 @@ Principal Investigator and Corresponding Author: andrew.millar@ed.ac.uk
 ------------------------------------------------------------------
 
 ## Repository Folder/File Overview
-
+### Branch: main (default)
 |-- Project_1_January_2024  
 |-- Project_2_November_2024_Latest  
 |-- Licence 
 
+### Branch: ODDPub_Fork
+
 -------------------------------------------------------------------
 
-## Folder Description
+## Folder Description in the main branch
 
 ### 1. Project_1_January_2024  
 This folder conatins the outcomes of the first project, centered on publications in infectious diseases and non-communicable diseases. DataSet_v1 encompasses all relevant files from a sample of 193 publications dated between 2014 to 2022. These documents form the cornerstone of the findings presented in this preprint: https://doi.org/10.1101/2024.02.18.580901
@@ -33,3 +35,7 @@ This folder contains the outcomes of the second project, encompassing publicatio
 
 ### 3. Licence
 The licence file in this repository stipulates that all content is protected under the Creative Commons Attribution 4.0 International License (CC BY 4.0). 
+
+## Branch ODDPub_fork
+The "ODDPub_fork" branch features the integration of the ODDPub algorithm, used as an automated step following manual assessment in Project 2 (November 2024). This branch includes the essential code of the ODDPub algorithm along with the datasets that were analysed from project 2 and the resulting datasets produced by the algorithm. To access and review the contents and contributions of this branch, please navigate using the branch navigation button at the top of the GitHub interface and select 'ODDPub_fork'.
+
