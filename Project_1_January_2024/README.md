@@ -23,7 +23,7 @@ These documents form the cornerstone of the findings presented in this preprint:
 
 ------------------------------------------------------------------
 
-## Project_1 Folder/File Overview
+## Project_1_January_2024 Folder/File Overview
 
 |-- Figures  
 |-- Biosciences_Publications_Dataset_2024.xlsx  
@@ -34,7 +34,7 @@ These documents form the cornerstone of the findings presented in this preprint:
 
 -------------------------------------------------------------------
 
-## Project_1 Folder Description
+## Project_1_January_2024 Folder Description
 
 ### 1. Biosciences_Publications_Dataset_2024
 
