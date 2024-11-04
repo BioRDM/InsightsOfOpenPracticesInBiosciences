@@ -25,7 +25,7 @@ Principal Investigator and Corresponding Author: andrew.millar@ed.ac.uk
 
 -------------------------------------------------------------------
 
-## Folder Description in the main branch
+## Main Branch: Folder Description
 
 ### 1. Project_1_January_2024  
 This folder conatins the outcomes of the first project, centered on publications in infectious diseases and non-communicable diseases. DataSet_v1 encompasses all relevant files from a sample of 193 publications dated between 2014 to 2022. These documents form the cornerstone of the findings presented in this preprint: https://doi.org/10.1101/2024.02.18.580901
