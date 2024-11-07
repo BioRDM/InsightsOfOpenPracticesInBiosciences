@@ -1,5 +1,17 @@
 # Repository README File: Insights of Open Practices in Biosciences
 -------------------------------------------------------------------
+## Authors
+Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Tomasz Zieliński 1, Andrew J. Millar 1*. 
+
+1: Centre for Engineering Biology and School of Biological Sciences, University of Edinburgh, EH9 3JF, UK. 
+2: Institute of Ecology and Evolution and School of Biological Sciences, University of Edinburgh, Edinburgh EH8 9AA, UK 
+
+## contact us:
+General Queries and Data Management: bio_rdm@ed.ac.uk 
+Principal Investigator and Corresponding Author: 
+Andrew Millar (andrew.millar@ed.ac.uk) Orcid: 0000-0003-1756-3654
+
+------------------------------------------------------------------
 
 ## General Information
 This reposotory contains the outcomes of a project executed at the Biosciences Institutes of the University of Edinburgh. This research project assesses the openness and FAIRness (Findable, Accessible, Interoperable, and Reusable) of data linked to publications from these institutes. Here, you will find datasets, analytical codes, and figures that detail our project’s methodology, results, and broader implications, aiming to enhance data-sharing practices and promote the adherence to FAIR principles within and beyond our community.
@@ -8,10 +20,6 @@ Each folder within this repository contains a distinct dataset, enabling structu
 ## Protocol: 
 The protocol for this project can be found on Protocol.io, where detailed step-by-step guidelines are provided to ensure that the research methods are transparent and reproducible. 
 https://www.protocols.io/view/a-protocol-for-assessing-open-data-practices-honou-kxygxyxmdl8j/v2
-
-## contact us:
-General Queries and Data Management: bio_rdm@ed.ac.uk 
-Principal Investigator and Corresponding Author: andrew.millar@ed.ac.uk 
 
 ------------------------------------------------------------------
 
