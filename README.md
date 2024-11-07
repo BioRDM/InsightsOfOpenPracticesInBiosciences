@@ -38,7 +38,7 @@ https://www.protocols.io/view/a-protocol-for-assessing-open-data-practices-honou
 ### 1. Project_1_January_2024  
 This folder conatins the outcomes of the first project, centered on publications in infectious diseases and non-communicable diseases. DataSet_v1 encompasses all relevant files from a sample of 193 publications dated between 2014 to 2022. These documents form the cornerstone of the findings presented in this preprint: https://doi.org/10.1101/2024.02.18.580901
 
-### 2. Project_2_November_2024_Latest  
+### 2. Project_2_November_2024 
 This folder contains the outcomes of the second project, encompassing publications in biotechnology, regenerative medicine, infectious diseases, and non-communicable diseases. DataSet_v2 includes all publications from the previous project (DataSet_V1) plus new additions, totaling 555 publications from 2014 to 2023. This project builds upon the first by integrating prior data with new data, representing an advanced phase of our ongoing research. this folder, DataSet_v2, contains all the data outputs and analytical results of this comprehensive second project.
 
 ### 3. Licence
