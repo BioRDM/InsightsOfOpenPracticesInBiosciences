@@ -1,4 +1,4 @@
-# Project_2_November_2024_Latest:"A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
+# Project_2_November_2024:"A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
 
 ## Authors:
 Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Tomasz Zieliński 1, Andrew J. Millar 1*.  
@@ -16,7 +16,7 @@ Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Tri
 
 Open science fundamentally reshapes the accessibility, transparency, and collaborative nature of scientific discovery. This study provides a comprehensive evaluation of both the openness and the adherence to FAIR principles (Findable, Accessible, Interoperable, and Reusable) in the context of data-sharing practices in the biosciences at the University of Edinburgh over the last decade, from 2014 to 2023. This evaluation encompassing 555 research papers spanning key areas such as biotechnology, regenerative medicine, infectious diseases, and non-communicable diseases forms the basis of our analysis.
 
-### 2. Project_2_November_2024_Latest:
+### 2. Project_2_November_2024:
 
 Project_2_Latest represents an updated and expanded version of the initial project, Project_1. While the first version captured essential publications up until 2022, Project_2_Latest extends the scope by incorporating publications through to 2023. This new Project_2_Latest integrates an added selection of 555 publications, significantly enlarging the corpus and broadening the analytical spectrum compared to Project_1.
 
@@ -31,7 +31,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 ------------------------------------------------------------------
 
-## PProject_2_November_2024_Latest: Folder/File Overview
+## Project_2_November_2024: Folder/File Overview
 
 |-- Figures_V2  
 |-- finaldata_openscience.xlsx  
@@ -40,7 +40,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 -------------------------------------------------------------------
 
-## Project_2_November_2024_Latest: Description
+## Project_2_November_2024: Description
 
 ### 1. finaldata_openscience
 
