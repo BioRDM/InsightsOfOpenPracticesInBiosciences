@@ -1,4 +1,4 @@
-# Project_2_Latest:"A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
+# Project_2_November_2024_Latest:"A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh "
 
 ## Authors:
 Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Tomasz Zieliński 1, Andrew J. Millar 1*.  
@@ -31,7 +31,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 ------------------------------------------------------------------
 
-## Project_2_Latest: Folder/File Overview
+## PProject_2_November_2024_Latest: Folder/File Overview
 
 |-- Figures_V2  
 |-- finaldata_openscience.xlsx  
@@ -40,7 +40,7 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 
 -------------------------------------------------------------------
 
-## Project_2_Latest: Description
+## Project_2_November_2024_Latest: Description
 
 ### 1. finaldata_openscience
 
