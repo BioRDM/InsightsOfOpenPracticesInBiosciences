@@ -13,9 +13,6 @@ Principal Investigator and Corresponding Author:
 Andrew Millar (andrew.millar@ed.ac.uk) Orcid: 0000-0003-1756-3654
 
 ------------------------------------------------------------------
-## Cite this Dataset: 
-
-------------------------------------------------------------------
 ## Description 
 We ran ODDPub on a sample of 555 biological sciences papers. We have included the code that was used, which includes functions from [ODDPub](https://github.com/quest-bih/oddpub). The ODDPub code is licensed via a [GNU Affero General Public License](https://github.com/quest-bih/oddpub?tab=AGPL-3.0-1-ov-file#readme).
 
