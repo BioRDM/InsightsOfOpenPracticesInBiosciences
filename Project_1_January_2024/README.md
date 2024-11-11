@@ -1,11 +1,16 @@
 # Project_1_January_2024: "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh"
 
 ## Authors:
-Haya Deeb, Hwee Yun Wong, Trisha Usman, Megan A. M. Kutzer, Tomasz Zieliński, Andrew J. Millar*.  
+Haya Deeb, Trisha Usman, Hwee Yun Wong, Megan A. M. Kutzer, Tomasz Zieliński, Andrew J. Millar*.  
 
 * For correspondence: Andrew Millar (andrew.millar@ed.ac.uk)
 
 -------------------------------------------------------------------
+## Citation:
+APA Style: 
+
+Deeb, H., Usman, T., Wong, H. Y., Kutzer, M. A. M., Zieliński, T., & Millar, A. J. (2024). Project_1_January_2024: "A Decade of Progress: Insights of Open Data Practices in Biosciences at the University of Edinburgh" GitHub. https://github.com/BioRDM/InsightsOfOpenPracticesInBiosciences/tree/main/Project_1_January_2024 . Accessed dd-MM-YYYY.
+
 
 ## General Information
 
