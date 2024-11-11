@@ -9,6 +9,9 @@ Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Tri
 * For correspondence: Andrew Millar (andrew.millar@ed.ac.uk)
 
 -------------------------------------------------------------------
+## Citation:
+Deeb, H., Creasey, S., Lucini de Ugarte, D., Strevens, G., Usman, T., Wong, H. Y., Kutzer, M. A. M., Zieliński, T., & Millar, A. J. (2024). Project_2_November_2024: "A Decade of Progress: Open Data Practices in Bioscience at the University of Edinburgh" GitHub. https://github.com/BioRDM/InsightsOfOpenPracticesInBiosciences/tree/main/Project_2_November_2024 . Accessed dd-MM-YYYY.
+
 
 ## General Information
 
