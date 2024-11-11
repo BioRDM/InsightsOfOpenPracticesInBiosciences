@@ -1,4 +1,4 @@
-# README: Using OddPub on biological sciences papers
+# README: Dataset of Using OddPub on Biological Sciences papers at University of Edinburgh
 
 ## Authors
 Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Trisha Usman 1, Hwee Yun Wong 1, Megan A. M. Kutzer 1,2, Emma Wilson 3, Malcolm McLeod 3, Tomasz Zieliński 1, Andrew J. Millar 1*. 
@@ -11,6 +11,13 @@ Haya Deeb 1, Suzanna Creasey 1, Diego Lucini de Ugarte 1, George Strevens 1, Tri
 General Queries and Data Management: bio_rdm@ed.ac.uk 
 Principal Investigator and Corresponding Author: 
 Andrew Millar (andrew.millar@ed.ac.uk) Orcid: 0000-0003-1756-3654
+
+
+## Citation:
+
+APA Style
+
+Deeb, H., Creasey, S., Lucini de Ugarte, D., Strevens, G., Usman, T., Wong, H. Y., Kutzer, M. A. M., Wilson, E., McLeod, M., Zieliński, T., & Millar, A. J. (2024). Dataset of Using OddPub on Biological Sciences papers at University of Edinburgh. GitHub. https://github.com/BioRDM/InsightsOfOpenPracticesInBiosciences/tree/oddpub_fork. Accessed dd-MM-YYYY.
 
 ------------------------------------------------------------------
 ## Description 
