@@ -15,9 +15,11 @@ library(ggplot2)
 library(tidyr)
 library(scales)
 library(MASS)
+library(extrafont)
+library(forcats)
 
 
-data <- read.csv ("finaldata_openscience.csv")
+data <- read.csv ("OpenScienceData_Nov_2024.csv")
 head(data)
 ```
 #Paper/years
@@ -28,16 +30,16 @@ aggregated_data <- data %>%
   summarise(total_papers = n())
 
 # Create the bar chart
-year_1 <- ggplot(aggregated_data, aes(x = as.factor(Year), y = total_papers)) +
+year <- ggplot(aggregated_data, aes(x = as.factor(Year), y = total_papers)) +
   geom_bar(stat = "identity", fill = "#1A56BB") +
   geom_text(aes(label = total_papers), vjust = -0.5) +
   labs(x = "Year", y = "Total Number of Papers", title = "Total Number of Papers by Year") +
   theme_minimal()
 
-print(year_1)
+print(year)
 
+#This figure was only used for illustartion, not used in publication, 
 
-#This figure was not used in the publication 
 ```
 
 #1 - Descriptive Statistics
@@ -45,7 +47,7 @@ print(year_1)
 #paper/type
 ```{r}
 type_frequency <- table(data$Type)
-print(type_frequency) 
+print(type_frequency) #these results were used in the table s1 of the publication
 ```
 
 #n% paper/year
@@ -64,83 +66,9 @@ summarized_data <- data %>%
 print(summarized_data) 
 ```
 
-#Papers/FAIR2016 ---- to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (overall)
-```{r}
-data <- data %>%
-  mutate(FAIR = ifelse(Year <= 2016, "Before or in 2016", "After 2016"))
 
-# Calculate the total number of papers for each period
-period_totals <- data %>%
-  group_by(FAIR) %>%
-  summarise(Total = n(), .groups = "drop")
 
-# Calculate the grand total of all papers
-grand_total <- sum(period_totals$Total)
 
-# Add a column for the percentage of each period's total relative to the grand total
-period_totals <- period_totals %>%
-  mutate(Percentage = (Total / grand_total) * 100)
-
-# Print the period totals and percentages
-print(period_totals)
-```
-
-#Papers/FAIR2016_byType to categorize papers based on the year of publication compared to FAIR principles implementation 2016 (depend on type)
-```{r}
-#Frequency and Percantage of paper before and After FAIR principles (2016)
-total_counts_by_type <- data %>%
-  group_by(Type) %>%
-  summarise(Total = n(), .groups = "drop")
-
-# Categorize, calculate frequency and percentage for each Type based on year
-summarized_data <- data %>%
-  mutate(Category = ifelse(Year <= 2016, "On/Before 2016", "After 2016")) %>%
-  group_by(Category, Type) %>%
-  summarise(count = n(), .groups = "drop") %>%
-  left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100)
-
-print(summarized_data) 
-```
-
-#Papers/COVID2020 ---- to categorise papers based on the year of publication compared to COVID 19 - 2020 (overall)
-
-```{r}
-data <- data %>%
-  mutate(COVID = ifelse(Year <= 2020, "Before or in 2020", "After 2020"))
-
-# Calculate the total number of papers for each period
-period_totals <- data %>%
-  group_by(COVID) %>%
-  summarise(Total = n(), .groups = "drop")
-
-# Calculate the grand total of all papers
-grand_total <- sum(period_totals$Total)
-
-# Add a column for the percentage of each period's total relative to the grand total
-period_totals <- period_totals %>%
-  mutate(Percentage = (Total / grand_total) * 100)
-
-# Print the period totals and percentages
-print(period_totals) 
-```
-
-#Papers/COVID2020_byType ---- to categorise papers based on the year of publication compared to COVID 19 - 2020 (NCD vs InfD)
-```{r}
-total_counts_by_type <- data %>%
-  group_by(Type) %>%
-  summarise(Total = n(), .groups = "drop")
-
-# Categorize, calculate frequency and percentage for each Type based on year
-summarized_data <- data %>%
-  mutate(Category = ifelse(Year <= 2020, "On/Before 2020", "After 2020")) %>%
-  group_by(Category, Type) %>%
-  summarise(count = n(), .groups = "drop") %>%
-  left_join(total_counts_by_type, by = "Type") %>%
-  mutate(Percentage = (count / Total) * 100)
-
-print(summarized_data) 
-```
 #Plot_Papers/years --- the distribution of the included papers over the years
 ```{r}
 aggregated_data <- data %>%
@@ -159,7 +87,7 @@ print(year)
 
 ggsave("year.png", year, width = 10, height = 8, dpi = 300, bg="white")
 
-#this figure was not used in the publication
+#This figure was only used for illustartion, not used in publication
 ```
 
 #DataShare ---Frequency and Percentage of the papers that share data (Data Sharing= Data Completeness score >1) Overall
@@ -182,6 +110,7 @@ period_totals <- period_totals %>%
 
 # Print the period totals and percentages
 print(period_totals) 
+
 #these results were used in the table 1 of the publication
 ```
 
@@ -203,6 +132,7 @@ summarized_data <- data %>%
   mutate(Percentage = (count / Total) * 100)
 
 print(summarized_data) 
+
 #these results were used in the table 1 of the publication
 
 ```
@@ -349,7 +279,7 @@ data %>%
 
   arrange(Type, Image)
 
-#these results were used in the table s5 of the publication
+#these results were used in the table s4 of the publication
 ```
 
 #Genomic --- Calculate frequency and percentage for Genomic
@@ -378,7 +308,7 @@ data %>%
 
   arrange(Type, Genomics)
 
-#these results were used in the table s5 of the publication
+#these results were used in the table s4 of the publication
 ```
 
 
@@ -408,10 +338,10 @@ data %>%
 
   arrange(Type, Human)
 
-#these results were used in the table s5 of the publication
+#these results were used in the table s4 of the publication
 ```
 
-#Complete/type --- Calculate frequency and percentage for Completeness Score 
+#Complete/type --- Calculate frequency and percentage for Completeness Score
 ```{r}
 Complete_summary <- data %>%
   group_by(Complete) %>%
@@ -437,6 +367,7 @@ data %>%
 
   arrange(Type, Complete)
 
+#these results were used in the table 1 of the publication
 ```
 
 
@@ -466,72 +397,12 @@ data %>%
 
   arrange(Type, Storage)
 
-#these results were used in the table 1 of the publication
+#these results were used in the table s4 of the publication
 ```
 
-#Plot_Criteria 
+
+#Plot/ ALL Criteria
 ```{r}
-# Convert all relevant columns to factors first to avoid the error
-data <- data %>%
-  mutate(across(c(Complete, Reuse, Access, Licence), as.character), .groups = "drop")  # Converts to character to ensure compatibility
-
-# Reshape data to long format
-long_data <- data %>%
-  pivot_longer(cols = c(Complete, Reuse, Access, Licence), names_to = "Category", values_to = "Value") %>%
-  mutate(Value = as.character(Value))  # Ensure that Value is a character
-
-# Rename and reorder categories
-long_data$Category <- recode(long_data$Category, 
-                             "Complete" = "Completeness",
-                             "Reuse" = "Reusability",
-                             "Access" = "Accessibility",
-                             "Licence" = "Licence")
-long_data$Category <- factor(long_data$Category, levels = c("Completeness", "Reusability", "Accessibility", "Licence"))
-
-long_data <- long_data %>%
-  mutate(Value = factor(Value, levels = c("4", "3", "2", "1")))
-
-# Calculate counts and percentages
-long_data <- long_data %>%
-  group_by(Category, Value) %>%
-  summarise(Count = n(), .groups = "drop") %>%
-  ungroup() %>%
-  group_by(Category) %>%
-  mutate(Total = sum(Count),
-         Percentage = Count / Total * 100) %>%
-  ungroup() %>%
-  arrange(Category, desc(Value)) %>%
-  group_by(Category) %>%
-  mutate(Label = ifelse(Percentage > 5, paste0(round(Percentage, 1), "%"), ""),
-         CumPercentage = cumsum(Percentage) - (0.5 * Percentage)) %>%
-  ungroup()
-
-# Plot
-Figure_1 <- ggplot(long_data, aes(x = Category, y = Percentage, fill = Value)) +
-  geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")) +
-  labs(y = "Percentage", fill = "Score") +
-  
-  geom_text(aes(label = Label, y = CumPercentage), size = 10) +
-   theme(
-    axis.title = element_text(size = 14), # Increase axis titles
-    axis.text = element_text(size = 18),  # Increase axis text
-    legend.title = element_text(size = 12), # Increase legend title
-    legend.text = element_text(size = 14)  # Increase legend text
-  ) +
-  ylim(0, 100)
-
-# Show the plot
-print(Figure_1) #these results were used in the figure 1 of the publication
-
-ggsave("Figure_1.png", Figure_1, width = 15, height = 10, units = "in", bg = "white")
-```
-
-```{r}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(forcats)
 
 # Convert all relevant columns to factors first to avoid the error
 data <- data %>%
@@ -573,20 +444,27 @@ Figure_1 <- ggplot(long_data, aes(x = Category, y = Count, fill = Value)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_fill_manual(values = c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")) +
   labs(y = "Count", fill = "Score") +
-  geom_text(aes(label = Label, y = CumCount), size = 10) +
+  
+  # Label text size set to 9pt (around size = 3 in ggplot2 units) with Times New Roman font
+  geom_text(aes(label = Label, y = CumCount), family = "Times New Roman", size = 3, color = "black") +
+  
+  # Set font to Times New Roman, adjusting label and title sizes, and color to black
   theme(
-    axis.title = element_text(size = 20), # Increase axis titles
-    axis.text = element_text(size = 20),  # Increase axis text
-    legend.title = element_text(size = 14), # Increase legend title
-    legend.text = element_text(size = 16)  # Increase legend text
+    axis.title = element_text(size = 11, color = "black", family = "Times New Roman"),  # Axis titles in Times New Roman, 11pt, black
+    axis.text = element_text(size = 9, color = "black", family = "Times New Roman"),    # Axis text in Times New Roman, 9pt, black
+    legend.title = element_text(size = 9, color = "black", family = "Times New Roman"), # Legend title to 11pt, black
+    legend.text = element_text(size = 9, color = "black", family = "Times New Roman")    # Legend text to 9pt, black
   ) +
   ylim(0, NA)
 
 # Show the plot
 print(Figure_1) #these results were used in the figure 1 of the publication
 
-ggsave("Figure_1.png", Figure_1, width = 15, height = 10, units = "in", bg = "white")
+# Save the plot with a smaller width and height to balance with font size
+ggsave("Figure_1.png", Figure_1, width = 7, height = 5, units = "in", bg = "white")  # Adjusted size to 7x5 inches
 
+
+#this figure is the figure 1 of the publication
 ```
 
 ```{r}
@@ -605,12 +483,11 @@ Complete <- ggplot(aggregated_data, aes(x = as.factor(Type), y = count, fill = C
 print(Complete)
 
 ggsave("Complete.png", Complete, width = 10, height = 8, dpi = 300, bg="white")
-
-#this figur was not used
 ```
 
 #Plot_Complete/Year
 ```{r}
+
 # Calculate the frequency and percentage for each 'Complete' score within each 'Year'
 long_data <- data %>%
   count(Year, Complete) %>%
@@ -629,34 +506,45 @@ colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
 # Creating the stacked bar chart with percentage labels
 Figure_2_1 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Complete))) +
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
-  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_y_continuous(labels = percent_format()) +    # Convert the y-axis to percentage
   geom_text(
-    aes(label = Label, y = Percentage), 
-    size = 7, 
+    aes(label = Label, y = Percentage / 100),        # Adjusted to place label within filled bars
+    family = "Times New Roman",
+    size = 3,                                        # Approximately 9pt
     color = "black", 
     position = position_fill(vjust = 0.5)
   ) +
   scale_fill_manual(values = colors) +
-  labs(x = "Year",
-       y = "Percentage",
-       fill = "Completeness") +
-  theme(
-    axis.title = element_text(size = 20), # Increase axis titles
-    axis.text = element_text(size = 20),  # Increase axis text
-    legend.title = element_text(size = 18), # Increase legend title
-    legend.text = element_text(size = 20)  # Increase legend text
+  labs(
+    x = "Year",
+    y = "Percentage",
+    fill = "Completeness"
   ) +
-  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+    ggtitle("(a)") +
+  theme_minimal(base_family = "Times New Roman") +   # Base font set to Times New Roman
+  theme(
+    plot.title = element_text(size = 11, hjust = 0, color = "black", family = "Times New Roman"), # Title aligned left
+    axis.title = element_text(size = 11, color = "black"),      # Axis titles in Times New Roman, 11pt
+    axis.text = element_text(size = 9, color = "black"),        # Axis text in Times New Roman, 9pt
+    legend.title = element_text(size = 11, color = "black"),    # Legend title in Times New Roman, 11pt
+    legend.text = element_text(size = 9, color = "black"),      # Legend text in Times New Roman, 9pt
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)  # Rotate x-axis labels for readability
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year))
 
 # Print the plot
 print(Figure_2_1)
 
-ggsave("Figure_2_1.png", Figure_2_1, width = 15, height = 10, units = "in", bg = "white")
+# Save the plot with smaller dimensions for better font scaling
+ggsave("Figure_2_1.png", Figure_2_1, width = 7, height = 5, units = "in", bg = "white")
+
+#this figure is the figure 2 (a) of the publication
+
 
 ```
 #Plot_Reuse/Year
 ```{r}
+
 # Calculate the frequency and percentage for each 'Reusability' score within each 'Year'
 long_data <- data %>%
   count(Year, Reuse) %>%
@@ -677,28 +565,37 @@ Figure_2_2 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
   geom_text(
-    aes(label = Label, y = Percentage), 
-    size = 7, 
+    aes(label = Label, y = Percentage / 100),         # Adjust position within filled bars
+    family = "Times New Roman",
+    size = 3,                                         # Approximately 9pt
     color = "black", 
     position = position_fill(vjust = 0.5)
   ) +
   scale_fill_manual(values = colors) +
-  labs(x = "Year",
-       y = "Percentage",
-       fill = "Reusability") +
-  theme(
-    axis.title = element_text(size = 20), # Increase axis titles
-    axis.text = element_text(size = 20),  # Increase axis text
-    legend.title = element_text(size = 18), # Increase legend title
-    legend.text = element_text(size = 20)  # Increase legend text
+  labs(
+    x = "Year",
+    y = "Percentage",
+    fill = "Reusability"
   ) +
-  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+  ggtitle("(b)") +                                    # Add title "(b)"
+  theme_minimal(base_family = "Times New Roman") +    # Base font set to Times New Roman
+  theme(
+    plot.title = element_text(size = 11, hjust = 0, color = "black", family = "Times New Roman"),  # Title aligned left
+    axis.title = element_text(size = 11, color = "black"),       # Axis titles in Times New Roman, 11pt
+    axis.text = element_text(size = 9, color = "black"),         # Axis text in Times New Roman, 9pt
+    legend.title = element_text(size = 11, color = "black"),     # Legend title in Times New Roman, 11pt
+    legend.text = element_text(size = 9, color = "black"),       # Legend text in Times New Roman, 9pt
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)  # Rotate x-axis labels for readability
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year))
 
 # Print the plot
 print(Figure_2_2)
 
-ggsave("Figure_2_2.png", Figure_2_2, width = 15, height = 10, units = "in", bg = "white")
+# Save the plot with smaller dimensions for better font scaling
+ggsave("Figure_2_2.png", Figure_2_2, width = 7, height = 5, units = "in", bg = "white")
+#this figure is the figure 2 (b) of the publication
+
 ```
 #Plot_Access/Year
 ```{r}
@@ -720,30 +617,39 @@ colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
 # Creating the stacked bar chart with percentage labels
 Figure_2_3 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Access))) +
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
-  scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
+  scale_y_continuous(labels = percent_format()) +    # Convert the y-axis to percentage
   geom_text(
-    aes(label = Label, y = Percentage), 
-    size = 7, 
+    aes(label = Label, y = Percentage / 100),         # Adjust position within filled bars
+    family = "Times New Roman",
+    size = 3,                                         # Approximately 9pt
     color = "black", 
     position = position_fill(vjust = 0.5)
   ) +
   scale_fill_manual(values = colors) +
-  labs(x = "Year",
-       y = "Percentage",
-       fill = "Accessibility") +
-  theme(
-    axis.title = element_text(size = 20), # Increase axis titles
-    axis.text = element_text(size = 20),  # Increase axis text
-    legend.title = element_text(size = 18), # Increase legend title
-    legend.text = element_text(size = 20)  # Increase legend text
+  labs(
+    x = "Year",
+    y = "Percentage",
+    fill = "Accessibility"
   ) +
-  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+  ggtitle("(c)") +                                    # Add title "(c)"
+  theme_minimal(base_family = "Times New Roman") +    # Base font set to Times New Roman
+  theme(
+    plot.title = element_text(size = 11, hjust = 0, color = "black", family = "Times New Roman"),  # Title aligned left
+    axis.title = element_text(size = 11, color = "black"),       # Axis titles in Times New Roman, 11pt
+    axis.text = element_text(size = 9, color = "black"),         # Axis text in Times New Roman, 9pt
+    legend.title = element_text(size = 11, color = "black"),     # Legend title in Times New Roman, 11pt
+    legend.text = element_text(size = 9, color = "black"),       # Legend text in Times New Roman, 9pt
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)  # Rotate x-axis labels for readability
+  ) +
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year))
 
 # Print the plot
 print(Figure_2_3)
 
-ggsave("Figure_2_3.png", Figure_2_3, width = 15, height = 10, units = "in", bg = "white")
+# Save the plot with smaller dimensions for better font scaling
+ggsave("Figure_2_3.png", Figure_2_3, width = 7, height = 5, units = "in", bg = "white")
+#this figure is the figure 2 (c) of the publication
+
 ```
 #Plot_Licence/Year
 ```{r}
@@ -766,9 +672,10 @@ colors <- c("#E88D5E","#B8D96C", "#B77AB9","#5271A9")
 Figure_2_4 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor(Licence))) +
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
-  geom_text(
-    aes(label = Label, y = Percentage), 
-    size = 7, 
+ geom_text(
+    aes(label = Label, y = Percentage / 100),         # Adjust position within filled bars
+    family = "Times New Roman",
+    size = 3,                                         # Approximately 9pt
     color = "black", 
     position = position_fill(vjust = 0.5)
   ) +
@@ -776,19 +683,25 @@ Figure_2_4 <- ggplot(long_data, aes(x = as.factor(Year), y = n, fill = as.factor
   labs(x = "Year",
        y = "Percentage",
        fill = "Licence") +
+  ggtitle("(d)") +                                    # Add title "(c)"
+  theme_minimal(base_family = "Times New Roman") +    # Base font set to Times New Roman
   theme(
-    axis.title = element_text(size = 20), # Increase axis titles
-    axis.text = element_text(size = 20),  # Increase axis text
-    legend.title = element_text(size = 18), # Increase legend title
-    legend.text = element_text(size = 20)  # Increase legend text
+    plot.title = element_text(size = 11, hjust = 0, color = "black", family = "Times New Roman"),  # Title aligned left
+    axis.title = element_text(size = 11, color = "black"),       # Axis titles in Times New Roman, 11pt
+    axis.text = element_text(size = 9, color = "black"),         # Axis text in Times New Roman, 9pt
+    legend.title = element_text(size = 11, color = "black"),     # Legend title in Times New Roman, 11pt
+    legend.text = element_text(size = 9, color = "black"),       # Legend text in Times New Roman, 9pt
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)  # Rotate x-axis labels for readability
   ) +
-  scale_x_discrete(name = "Year", labels = unique(long_data$Year)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Adjust text angle for readability
+  scale_x_discrete(name = "Year", labels = unique(long_data$Year))
+
 
 # Print the plot
 print(Figure_2_4)
 
-ggsave("Figure_2_4.png", Figure_2_4, width = 15, height = 10, units = "in", bg = "white")
+ggsave("Figure_2_4.png", Figure_2_4, width = 7, height = 5, units = "in", bg = "white")
+
+#this figure is the figure 2 (d) of the publication
 ```
 #Plot_Criteria/Year
 ```{r}
@@ -799,10 +712,12 @@ Figure_2 <- Figure_2_1 + Figure_2_2 + Figure_2_3 + Figure_2_4 +
   )
 print(Figure_2)
 
-ggsave("Figure_2.png", Figure_2, width = 15, height = 10, units = "in")
+ggsave("Figure_2.png", Figure_2, width = 14, height = 10, units = "in", bg = "white")
 
 #these results were used in the Figure 2 of the publication
 ```
+
+
 
 #Plot_DAS/Completeness Score
 ```{r}
@@ -832,24 +747,23 @@ colors <- c("Not Presented" = "gray", "Not Shared" = "#E5696F", "Shared" = "#506
 Figure_4 <- ggplot(das_frequency, aes(x = as.factor(Complete), y = Frequency, fill = NewDAS)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(Percentage, 1), "% (", Frequency, ")")),
-            position = position_dodge(width = 0.9), vjust = -0.25, size = 3.5) +
+            position = position_dodge(width = 0.9), vjust = -0.25, size = 3, family = "Times New Roman", color = "black") +
   scale_fill_manual(values = colors, name = "DAS Status") +
-  theme_bw() +  # Use theme_bw for a white background
-   theme(
-    axis.title = element_text(size = 10), # Increase axis titles
-    axis.text = element_text(size = 16),  # Increase axis text
-    legend.title = element_text(size = 14), # Increase legend title
-    legend.text = element_text(size = 16)  # Increase legend text
+  theme_bw(base_family = "Times New Roman") +  # Set theme to use Times New Roman as default
+  theme(
+    axis.title = element_text(size = 11, color = "black"),  # Axis title font size
+    axis.text = element_text(size = 9, color = "black"),   # Axis text font size
+    legend.title = element_text(size = 11, color = "black"), # Legend title font size
+    legend.text = element_text(size = 9, color = "black"),  # Legend text font size
+    legend.position = "bottom"  # Position legend at the bottom
   ) +
-  labs(x = "Completeness Score", y = "Frequency") +
-  theme(legend.position = "bottom")
+  labs(x = "Completeness Score", y = "Frequency")  # Label for x and y axes
 
-# Print and save the plot
+# Print and save the plot with adjusted dimensions
 print(Figure_4)
-ggsave("Figure_4.png", Figure_4, width = 8, height = 6,  bg = "white")
+ggsave("Figure_4.png", Figure_4, width = 7, height = 5, units = "in", bg = "white")
 
-#these results were used in the Figure 3 of the publication
-
+#these results were not used, it was for illustration purposes 
 
 ```
 
@@ -866,6 +780,8 @@ NewDAS_summary <- NewDAS_summary %>%
   mutate(percentage = (count / overall_total) * 100)
 
 print(NewDAS_summary)
+
+#these results were used in table S4 of the publication
 ```
 
 
@@ -886,7 +802,7 @@ cat("Number of unique authors:", num_unique_authors, "\n")
 ```{r}
 library(ordinal) # ordinal logistic regression: cumulative link mixed models, clm function is in this package; For a detailed explanation of the package and the functions available see: https://cran.r-project.org/web/packages/ordinal/vignettes/clm_article.pdf
 library(VGAM) # more ordinal regression 
-library(dplyr) 
+library(dplyr) # Data manipulation
 library(chisq.posthoc.test) # If needed
 library(gmodels) # For SPSS style chi-sq/ contingency tables
 library(emmeans)
@@ -910,6 +826,59 @@ levels(data$Access)
 levels(data$Licence)
 ```
 
+#Ordinal Regression Model(Completeness*Year)
+```{r}
+data$Y <- data$Year - 2013
+m1a <- clm(Complete ~ Y, data = data)
+summary_m1a <- summary(m1a) 
+print(summary_m1a)
+
+predict(m1a, newdata=expand.grid(Y = 1:10), se.fit=TRUE, type='cum.prob')
+
+CI <-  confint(m1a)
+data.frame(
+  OR    = exp(m1a$coefficients),
+  lower = exp(CI[1]),
+  upper = exp(CI[2])
+)
+
+range(data$Y)
+
+###plotting the model
+# Predict probabilities for each level of 'Complete'
+new_data <- data.frame(Y = sort(unique(data$Y)))
+pred_probs <- predict(m1a, newdata = new_data, type = "prob")
+
+# Add the 'Year' column to the predicted probabilities dataframe
+pred_probs_df <- cbind(new_data, as.data.frame(pred_probs))
+
+# Convert the predicted probabilities to a long format for ggplot
+library(reshape2)
+pred_probs_long <- melt(pred_probs_df, id.vars = 'Y', variable.name = 'CompleteLevel', value.name = 'PredictedProbability')
+
+# Set the colors
+my_colors <- c("#5271A9","#B77AB9","#B8D96C","#E88D5E")
+
+# Modify ggplot command
+Figure_3_1 <- ggplot(pred_probs_long, aes(x = Y, y = PredictedProbability, group = CompleteLevel, color = CompleteLevel)) + 
+  geom_line(size = 2) +  # Thicker lines for readability
+  scale_color_manual(values = my_colors) +
+  scale_x_continuous(breaks = unique(pred_probs_long$Y)) +  # Display all unique x-axis labels
+  labs(x = "Y", y = "Probability", color = "Completeness Score") +
+  theme(
+    axis.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Axis titles in 11pt
+    axis.text = element_text(size = 9, family = "Times New Roman", color = "black"),   # Axis text in 9pt
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Legend title in 11pt
+    legend.text = element_text(size = 9, family = "Times New Roman", color = "black")  # Legend text in 9pt
+  ) 
+
+# Print and save the plot
+print(Figure_3_1)
+
+ggsave("Figure_3_1.png", Figure_3_1, width = 7, height = 5, units = "in",  bg = "white")
+
+#these results were used in the table s2
+```
 
 
 
@@ -930,10 +899,9 @@ results <- data.frame(
 rownames(results) <- names(or)
 print(results)
 
-#these results were used in the table s2
 ```
 
-
+#Ordinal Regression Model(Completeness*Year) + Random Effect
 ```{r}
 library(ordinal)
 library(lme4)
@@ -960,8 +928,8 @@ results <- data.frame(
 )
 print(results)
 
-
 #these results were used in the table s2
+
 ```
 
 
@@ -989,11 +957,13 @@ plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
 # Reset plotting layout
 par(mfrow = c(1, 1))
 
-#this code was to show the type pf relationship between the independent variable and the dependent variable -looking for a linear relationship-
+#these results were used in the table s2
+
+
 ```
 
 
-#ORM_Reuse
+#Ordinal Regression Model(Reusability*Year)
 ```{r}
 m1a <- clm(Reuse ~ Y, data = data)
 summary_m1a <- summary(m1a) 
@@ -1013,7 +983,7 @@ range(data$Y)
 #these results were used in the table s2
 ```
 
-
+#Ordinal Regression Model(Reusability*Year) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Reuse ~ Y + (1 | ResGrp), data = data)
@@ -1057,10 +1027,11 @@ plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
 # Reset plotting layout
 par(mfrow = c(1, 1))
 
+#these results were used in the table s2
 ```
 
 
-#ORM_Access
+#Ordinal Regression Model(Accessibility*Year)
 ```{r}
 m1a <- clm(Access ~ Y, data = data)
 summary_m1a <- summary(m1a) 
@@ -1080,7 +1051,7 @@ range(data$Y)
 ```
 
 
-
+#Ordinal Regression Model(Accessibility*Year) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Access ~ Y + (1 | ResGrp), data = data)
@@ -1098,6 +1069,7 @@ results <- data.frame(
   upper = exp(CI[, "97.5 %"])
 )
 print(results)
+#these results were used in the table s2
 ```
 
 
@@ -1122,10 +1094,11 @@ plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
 
 # Reset plotting layout
 par(mfrow = c(1, 1))
+#these results were used in the table s2
 
 
 ```
-#ORM_Licence
+#Ordinal Regression Model(Licence*Year)
 ```{r}
 m1a <- clm(Licence ~ Y, data = data)
 summary_m1a <- summary(m1a) 
@@ -1141,10 +1114,9 @@ data.frame(
 )
 
 range(data$Y)
-
 #these results were used in the table s2
 ```
-
+#Ordinal Regression Model(Licence*Year) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Licence ~ Y + (1 | ResGrp), data = data)
@@ -1162,6 +1134,7 @@ results <- data.frame(
   upper = exp(CI[, "97.5 %"])
 )
 print(results)
+#these results were used in the table s2
 ```
 
 ```{r}
@@ -1185,27 +1158,15 @@ plot(mod_gam, select = 3, main = "Smooth Term s(ResGrp)")
 
 # Reset plotting layout
 par(mfrow = c(1, 1))
+#these results were used in the table s2
 
 
 ```
-#Trying
-
-```{r}
-m1a <- clm(Complete ~ Y + FAIR, data = data)
-summary_m1a <- summary(m1a) 
-print(summary_m1a)
 
 
-CI <-  confint(m1a)
-data.frame(
-  OR    = exp(m1a$coefficients),
-  lower = exp(CI[1]),
-  upper = exp(CI[2])
-)
 
-range(data$Y)
-```
-#ORMField_Complete
+#Ordinal Regression Model(Complete*Type)
+
 ```{r} 
 data$Type <- as.factor(data$Type)
 
@@ -1247,15 +1208,27 @@ data$Complete <- as.factor(data$Complete)
 Dist1 <- ggplot(data, aes(x = Complete, fill = Type)) +
   geom_bar(position = "dodge") +
   facet_wrap(~ Type) +
-  labs(title = "Distribution of Completeness Scores by Research Type", x = "Completeness Score", y = "Count")
+  labs(
+    title = "(a)",  # Add title with "(a)"
+    x = "Completeness Score",
+    y = "Count"
+  ) +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Title in 11pt
+    axis.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Axis titles in 11pt
+    axis.text = element_text(size = 9, family = "Times New Roman", color = "black"),   # Axis text in 9pt
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Legend title in 11pt
+    legend.text = element_text(size = 9, family = "Times New Roman", color = "black")   # Legend text in 9pt
+  )
 
+# Print and save the plot with specified dimensions
 print(Dist1)
-ggsave("Dist1.png", Dist1, width = 15, height = 10, units = "in", bg = "white")
+ggsave("Dist1.png", Dist1, width = 7, height = 5, units = "in", bg = "white")
 
-#these results were used in the table s3 and Figure S1
-
+# These results were used in the figure s1 and table s3
 ```
-#ORMField_Complete +RE
+
+#Ordinal Regression Model(Complete*Type) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Complete ~ Type + (1 | ResGrp), data = data)
@@ -1288,15 +1261,15 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
 
 
 
-#ORMField_Reuse 
+#Ordinal Regression Model(Reusability*Type)
 ```{r}
 
-# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+# Assuming 'data' is your dataframe containing the 'Type' and 'Reusability' variables
 data$Type <- relevel(data$Type, ref = "BioTech")
 
 m1a <- clm(Reuse ~ Type, data = data)
@@ -1330,15 +1303,27 @@ print(results)
 Dist2 <- ggplot(data, aes(x = Reuse, fill = Type)) +
   geom_bar(position = "dodge") +
   facet_wrap(~ Type) +
-  labs(title = "Distribution of Reusability Scores by Research Type", x = "Reusability Score", y = "Count")
+  labs(
+    title = "(b)",  
+    x = "Reusability Score",
+    y = "Count"
+  ) +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Title in 11pt
+    axis.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Axis titles in 11pt
+    axis.text = element_text(size = 9, family = "Times New Roman", color = "black"),   # Axis text in 9pt
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Legend title in 11pt
+    legend.text = element_text(size = 9, family = "Times New Roman", color = "black")   # Legend text in 9pt
+  )
 
+# Print and save the plot with specified dimensions
 print(Dist2)
-ggsave("Dist2.png", Dist2, width = 15, height = 10, units = "in", bg = "white")
+ggsave("Dist2.png", Dist2, width = 7, height = 5, units = "in", bg = "white")
 
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
 
-#ORMField_Reuse +RE
+#Ordinal Regression Model(Reusability*Type) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Reuse ~ Type + (1 | ResGrp), data = data)
@@ -1369,10 +1354,9 @@ results <- data.frame(
 
 # Print the results
 print(results)
-
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
-#ORM_DAS/PREField_REUSE +RE
+#?Ordinal Regression Model(Reusability*Type+ DAS + Prepeint) + Random Effect
 ```{r}
 
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
@@ -1405,13 +1389,13 @@ results <- data.frame(
 
 # Print the results
 print(results)
+# These results were used in the figure s1 and table s3
 
-#these results were used in the table s3 and Figure S1
 ```
 
-#ORMField_Access
+#Ordinal Regression Model(Accessibility*Type)
 ```{r}
-# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+# Assuming 'data' is your dataframe containing the 'Type' and 'Access' variables
 data$Type <- relevel(data$Type, ref = "BioTech")
 
 m1a <- clm(Access ~ Type, data = data)
@@ -1442,17 +1426,29 @@ results <- data.frame(
 print(results)
 
 # Plot the distribution of completeness scores by type
+# Modify font size, font type, and add a title
 Dist3 <- ggplot(data, aes(x = Access, fill = Type)) +
   geom_bar(position = "dodge") +
   facet_wrap(~ Type) +
-  labs(title = "Distribution of Accessibility Scores by Research Type", x = "Accessibility Score", y = "Count")
+  labs(
+    title = "(c)",  # Add title with "(a)"
+    x = "Accessibility Score",
+    y = "Count"
+  ) +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Title in 11pt
+    axis.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Axis titles in 11pt
+    axis.text = element_text(size = 9, family = "Times New Roman", color = "black"),   # Axis text in 9pt
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Legend title in 11pt
+    legend.text = element_text(size = 9, family = "Times New Roman", color = "black")   # Legend text in 9pt
+  )
 
+# Print and save the plot with specified dimensions
 print(Dist3)
-ggsave("Dist3.png", Dist3, width = 15, height = 10, units = "in", bg = "white")
-
-#these results were used in the table s3 and Figure S1
+ggsave("Dist3.png", Dist3, width = 7, height = 5, units = "in", bg = "white")
+# These results were used in the figure s1 and table s3
 ```
-#ORMField_Access +RE
+#Ordinal Regression Model(Accessibility*Type) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Access ~ Type + (1 | ResGrp), data = data)
@@ -1483,10 +1479,9 @@ results <- data.frame(
 
 # Print the results
 print(results)
-
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
-#ORM_DAS/PREField_Access +RE
+#?Ordinal Regression Model(Accessibility*Type+ DAS + Prepeint) + Random Effect
 ```{r}
 
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
@@ -1520,12 +1515,12 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
 
-#ORMField_Licence
+#Ordinal Regression Model(Licence*Type) 
 ```{r}
-# Assuming 'data' is your dataframe containing the 'Type' and 'Complete' variables
+# Assuming 'data' is your dataframe containing the 'Type' and 'Licence' variables
 data$Type <- relevel(data$Type, ref = "BioTech")
 
 m1a <- clm(Licence ~ Type, data = data)
@@ -1554,19 +1549,31 @@ results <- data.frame(
 # Print the results
 print(results)
 # Plot the distribution of completeness scores by type
+# Modify font size, font type, and add a title
 Dist4 <- ggplot(data, aes(x = Licence, fill = Type)) +
   geom_bar(position = "dodge") +
   facet_wrap(~ Type) +
-  labs(title = "Distribution of Licence Scores by Research Type", x = "Licence Score", y = "Count")
+  labs(
+    title = "(d)",  
+    x = "Licence Score",
+    y = "Count"
+  ) +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Title in 11pt
+    axis.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Axis titles in 11pt
+    axis.text = element_text(size = 9, family = "Times New Roman", color = "black"),   # Axis text in 9pt
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"), # Legend title in 11pt
+    legend.text = element_text(size = 9, family = "Times New Roman", color = "black")   # Legend text in 9pt
+  )
 
+# Print and save the plot with specified dimensions
 print(Dist4)
-ggsave("Dist4.png", Dist4, width = 15, height = 10, units = "in", bg = "white")
-
-#these results were used in the table s3 and Figure S1
+ggsave("Dist4.png", Dist4, width = 7, height = 5, units = "in", bg = "white")
+# These results were used in the figure s1 and table s3
 
 ```
 
-#ORMField_Licence +RE
+#Ordinal Regression Model(Licence*Type) + Random Effect
 ```{r}
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
 m1a <- clmm(Licence ~ Type + (1 | ResGrp), data = data)
@@ -1597,7 +1604,7 @@ results <- data.frame(
 
 # Print the results
 print(results)
-#these results were used in the table s3 and Figure S1
+# These results were used in the figure s1 and table s3
 ```
 
 ```{r}
@@ -1607,13 +1614,12 @@ Dist <- Dist1 + Dist2 + Dist3 + Dist4 +
   )
 print(Dist)
 
-ggsave("Dist.png", Dist, width = 15, height = 10, units = "in")
-
-#these results were used in the table s3 and Figure S1
+ggsave("Dist.png", Dist, width = 14, height = 10, units = "in")
+# These results were used in the figure s1
 ```
 
 
-#ORM_DAS/PRE_Complete +RE
+#Ordinal Regression Model(Complete*DAS + Prepeint) + Random Effect
 ```{r}
 
 data$NewDAS <- as.factor(data$NewDAS)
@@ -1657,9 +1663,9 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s5
+#these results were used in Table s5
 ```
-#ORM_DAS/PRE_Reuse +RE
+#Ordinal Regression Model(Reusability*DAS + Prepeint) + Random Effect
 ```{r}
 
 data$NewDAS <- as.factor(data$NewDAS)
@@ -1703,9 +1709,9 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s5
+#these results were used in Table s5
 ```
-#ORM_DAS/PRE_Reuse +RE
+#Ordinal Regression Model(Accessibility*DAS + Prepeint) + Random Effect
 ```{r}
 
 data$NewDAS <- as.factor(data$NewDAS)
@@ -1719,7 +1725,7 @@ levels(data$NewDAS)
 
 
 # Fit a mixed-effects ordinal regression model with random intercepts for authors
-m1a <- clmm(Reuse ~  NewDAS + Preprints + (1 | ResGrp), data = data)
+m1a <- clmm(Access ~  NewDAS + Preprints + (1 | ResGrp), data = data)
 
 # Print the summary of the model
 summary_m1a <- summary(m1a)
@@ -1749,10 +1755,10 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s5
+#these results were used in Table s5
 ```
 
-#ORM_DAS/PRE_Licence +RE
+#Ordinal Regression Model(Licence*DAS + Prepeint) + Random Effect
 ```{r}
 
 data$NewDAS <- as.factor(data$NewDAS)
@@ -1796,9 +1802,14 @@ results <- data.frame(
 # Print the results
 print(results)
 
-#these results were used in the table s5
+#these results were used in Table s5
 ```
+
+
+
+
 #Complete/ResGrp
+
 ```{r}
  #Calculate the frequency and percentage for each 'Complete' score among the research Group
 long_data <- data %>%
@@ -1820,7 +1831,7 @@ internal1 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.facto
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
   scale_fill_manual(values = colors) +
-  labs(title = "Distribution of 'Completeness' Scores by Research Groups",
+  labs(title = "Distribution of 'Completeness' Scores by ResGrp",
        x = "ResGrp",
        y = "Proportion",
        fill = "Complete") +
@@ -1859,7 +1870,7 @@ internal2 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.facto
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
   scale_fill_manual(values = colors) +
-  labs(title = "Distribution of 'Reusability' Scores by Research Groups",
+  labs(title = "Distribution of 'Completeness' Scores by ResGrp",
        x = "ResGrp",
        y = "Proportion",
        fill = "Reuse") +
@@ -1898,7 +1909,7 @@ internal3 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.facto
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
   scale_fill_manual(values = colors) +
-  labs(title = "Distribution of 'Accessibility' Scores by Research Groups",
+  labs(title = "Distribution of 'Completeness' Scores by ResGrp",
        x = "ResGrp",
        y = "Proportion",
        fill = "Access") +
@@ -1937,7 +1948,7 @@ internal4 <- ggplot(long_data, aes(x = as.factor(ResGrp), y = n, fill = as.facto
   geom_bar(stat = "identity", position = "fill") +  # Scale the bar heights to proportions
   scale_y_continuous(labels = percent_format()) +  # Convert the y-axis to percentage
   scale_fill_manual(values = colors) +
-  labs(title = "Distribution of 'Licence' Scores by Research Groups",
+  labs(title = "Distribution of 'Completeness' Scores by ResGrp",
        x = "ResGrp",
        y = "Proportion",
        fill = "Licence") +
@@ -1953,4 +1964,232 @@ ggsave("internal4.png", internal4, width = 15, height = 10, units = "in", bg= "w
 
 #these results were used for internal university meetings and presentations 
 ```
+
+
+#ODDPub_Figures
+```{r}
+ODD <- read.csv ("OpenScienceData_Nov_2024+ODDPub.csv")
+head(ODD)
+
+#this is the dataset with the ODDPub results
+```
+```{r}
+ODD$Count <- 1
+
+# Now calculate counts and percentages for each combination of 'Complete' and 'is_open_data'
+Counts <- aggregate(Count ~ Complete + is_open_data, data = ODD, FUN = sum)
+
+Counts$Percentage <- with(Counts, ave(Count, Complete, FUN = function(x) round(x / sum(x) * 100, 1)))
+
+# Create the adjusted bar chart for the revised request
+p <- ggplot(Counts, aes(x = Complete, y = Count, fill = is_open_data)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = paste(Percentage, "% (", Count, ")")),
+    position = position_stack(vjust = 0.5),
+    size = 4,  # Adjust text size for readability
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = c("TRUE" = "#50689B", "FALSE" = "#E5696F"),
+    name = "ODDPub Open Data"
+  ) +
+  labs(
+    title = "(a)",  
+    x = "Completeness",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Title font size and style
+    axis.title.x = element_text(size = 11, family = "Times New Roman", color = "black"),  # X-axis title font
+    axis.title.y = element_text(size = 11, family = "Times New Roman", color = "black"),  # Y-axis title font
+    axis.text.x = element_text(size = 11, family = "Times New Roman", color = "black"),   # X-axis text size and font
+    axis.text.y = element_text(size = 11, family = "Times New Roman", color = "black"),   # Y-axis text size and font
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Legend title font
+    legend.text = element_text(size = 11, family = "Times New Roman", color = "black"),    # Legend text font
+    legend.position = "bottom"  # Legend position moved below the plot
+  )
+
+# Print and save the plot
+print(p)
+ggsave("Figure_a.png", p, width = 5, height = 7, units = "in", bg = "white")
+
+#these results were used in figure 3 (a)
+
+```
+
+```{r}
+ODD <- ODD %>%
+  mutate(Newcode = case_when(
+    is.na(Code) ~ "Not Applicable",
+    Code == 1 ~ "Used & Shared",
+    Code == 0 ~ "Used & not Shared",
+    TRUE ~ as.character(Code)))  # This line is just a fallback to handle unexpected values
+
+Counts <- aggregate(Count ~ Newcode + is_open_code, data = ODD, FUN = sum)
+Counts$Percentage <- with(Counts, ave(Count, Newcode, FUN = function(x) round(x / sum(x) * 100, 1)))
+
+# Create the adjusted bar chart for the revised request
+p1 <- ggplot(Counts, aes(x = Newcode, y = Count, fill = is_open_code)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = paste(Percentage, "% (", Count, ")")),
+    position = position_stack(vjust = 0.5),
+    size = 4,  # Adjusted text size for readability
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = c("TRUE" = "#50689B", "FALSE" = "#E5696F"),
+    name = "ODDPub Code"
+  ) +
+  labs(
+    title = "(b)",  # Updated title
+    x = "Manual Code",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Title font size and style
+    axis.title.x = element_text(size = 11, family = "Times New Roman", color = "black"),  # X-axis title font
+    axis.title.y = element_text(size = 11, family = "Times New Roman", color = "black"),  # Y-axis title font
+    axis.text.x = element_text(size = 11, family = "Times New Roman", color = "black"),   # X-axis text size and font
+    axis.text.y = element_text(size = 11, family = "Times New Roman", color = "black"),   # Y-axis text size and font
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Legend title font
+    legend.text = element_text(size = 11, family = "Times New Roman", color = "black"),    # Legend text font
+    legend.position = "bottom"  # Legend position moved below the plot
+  )
+
+# Print and save the plot
+print(p1)
+ggsave("Figure_b.png", p1, width = 5, height = 7, units = "in", bg = "white")
+#these results were used in figure 3 (b)
+
+```
+
+```{r}
+Figure_O1 <- p + p1
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_O1)
+
+ggsave("Figure_O1.png", Figure_O1, width = 10, height = 7, units = "in")
+#these results were used in figure 3
+```
+
+```{r}
+ODD <- ODD %>%
+  mutate(NewDAS = case_when(
+    is.na(DAS) ~ "Not Presented",
+    DAS == 1 ~ "Shared",
+    DAS == 0 ~ "Not Shared",
+    TRUE ~ as.character(DAS)))  # This line is just a fallback to handle unexpected values
+
+class(ODD$NewDAS)
+
+ODD$ODD_DAS[is.na(ODD$ODD_DAS)] <- "FALSE"
+
+# Calculate the counts and percentages for the DAS dataset
+CountsDAS <- aggregate(Count ~ NewDAS + ODD_DAS, data = ODD, FUN = sum)
+CountsDAS$Percentage <- with(CountsDAS, ave(Count, NewDAS, FUN = function(x) round(x / sum(x) * 100, 1)))
+
+# Create the bar chart for the DAS dataset
+pDAS <- ggplot(CountsDAS, aes(x = NewDAS, y = Count, fill = ODD_DAS)) +
+  geom_bar(stat = "identity") +
+  geom_text(
+    aes(label = paste(Percentage, "% (", Count, ")")),
+    position = position_stack(vjust = 0.5),
+    size = 4,  # Adjusted text size for better readability
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = c("TRUE" = "#50689B", "FALSE" = "#E5696F"),
+    name = "ODDPub DAS"
+  ) +
+  labs(
+    title = "(b)",  # Updated title with "(b)"
+    x = "DAS Manual",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Title font size and style
+    axis.title.x = element_text(size = 11, family = "Times New Roman", color = "black"),  # X-axis title font
+    axis.title.y = element_text(size = 11, family = "Times New Roman", color = "black"),  # Y-axis title font
+    axis.text.x = element_text(size = 11, family = "Times New Roman", color = "black"),   # X-axis text font
+    axis.text.y = element_text(size = 11, family = "Times New Roman", color = "black"),   # Y-axis text font
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Legend title font
+    legend.text = element_text(size = 11, family = "Times New Roman", color = "black"),    # Legend text font
+    legend.position = "bottom"  # Move legend to bottom for consistent layout
+  )
+
+# Print and save the plot
+print(pDAS)
+ggsave("Figure_b_DAS.png", pDAS, width = 5, height = 7, units = "in", bg = "white")
+#these results were used in figure 4 (b)
+
+```
+```{r}
+# Update the code to format the percentage to display only two digits after the comma
+
+das_counts <- data %>%
+  group_by(Complete, NewDAS) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Frequency = Count, Percentage = round((Count / Total) * 100, 2))  # Round to two decimal places
+
+# Define colors matching the correct sequence of 'Complete' levels
+colors <- setNames(c("#E88D5E", "#B8D96C", "#B77AB9", "#5271A9"), levels(factor(das_counts$Complete, levels = c("4", "3", "2", "1"))))
+
+# Modify the plot to include the adjusted percentage
+pData1 <- ggplot(das_counts, aes(x = NewDAS, y = Count, fill = factor(Complete, levels = c("1", "2", "3", "4")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(
+    aes(label = paste(Percentage, "% (", Count, ")")),
+    position = position_stack(vjust = 0.5),
+    check_overlap = TRUE,
+    size = 4,  # Adjusted text size for better readability
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = colors,
+    name = "Complete Score"
+  ) +
+  labs(
+    title = "(a)",  # Updated title with "(a)"
+    x = "DAS Manual",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Title font size and style
+    axis.title.x = element_text(size = 11, family = "Times New Roman", color = "black"),  # X-axis title font
+    axis.title.y = element_text(size = 11, family = "Times New Roman", color = "black"),  # Y-axis title font
+    axis.text.x = element_text(size = 11, family = "Times New Roman", color = "black"),    # X-axis text font
+    axis.text.y = element_text(size = 11, family = "Times New Roman", color = "black"),    # Y-axis text font
+    legend.title = element_text(size = 11, family = "Times New Roman", color = "black"),  # Legend title font
+    legend.text = element_text(size = 11, family = "Times New Roman", color = "black"),    # Legend text font
+    legend.position = "bottom"  # Place legend below the plot for consistent layout
+  )
+
+# Print and save the plot
+print(pData1)
+ggsave("Figure_a_DAS.png", pData1, width = 5, height = 7, units = "in", bg = "white")
+
+#these results were used in figure 4 (a)
+
+```
+```{r}
+library(patchwork)
+Figure_O2 <- pData1 + pDAS
+  plot_layout(
+    ncol = 2, heights = c(10, 10), widths = c(10, 10)
+  )
+print(Figure_O2)
+
+ggsave("Figure_O2.png", Figure_O2, width = 10, height = 7, units = "in")
+#these results were used in figure 4
+```
+
+
 
