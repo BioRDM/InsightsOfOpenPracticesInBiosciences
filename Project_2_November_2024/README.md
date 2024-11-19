@@ -40,24 +40,24 @@ https://dx.doi.org/10.17504/protocols.io.kxygxyxmdl8j/v2
 ## Project_2_November_2024: Folder/File Overview
 
 |-- Figures_V2  
-|-- finaldata_openscience.xlsx  
-|-- finaldata_openscience_2024.csv  
-|-- DataSet2_Code.Rmd 
+|-- OpenScienceData_Nov_2024+Data Dictionary.xlsx 
+|-- OpenScienceData_Nov_2024.csv
+|-- OpenScience_Code_Nov_2024.Rmd
 
 -------------------------------------------------------------------
 
 ## Project_2_November_2024: Description
 
-### 1. finaldata_openscience
+### 1. OpenScienceData 
 
 This dataset, derived from a comprehensive analysis of selected publications in the field of biosciences, is presented in CSV format. It is designed for use with statistical software, such as RStudio, to facilitate detailed analysis.
 CSV File Structure: The dataset contains rows corresponding to selected publications, each characterized by a set of variables critical to our study. The columns in the CSV file represent these variables.
 
-#### Excel File Structure (finaldata_openscience.xlsx)
+#### Excel File Structure (OpenScienceData_Nov_2024+Data Dictionary.xlsx)
 * Sheet 1 (Dataset): Contains rows of selected publications and columns representing the variables used in our analysis.The raws that are highlighted in yellow, are the papers that have been randomly selected for reassessing   
 * Sheet 2 (Variable Descriptions): Provides a detailed explanation of each variable and the values they represent.
 
-#### CSV File (finaldata_openscience.csv)
+#### CSV File (OpenScienceData_Nov_2024.csv)
 The CSV file is derived from Sheet 1 of the Excel file and was imported into RStudio for analysis.
 
 #### Variable Descriptions
@@ -92,7 +92,7 @@ The dataset comprises the following variables:
 
 ### 2. RMarkdown Code 
 
-##### DataSet2_Code.Rmd
+##### OpenScience_Code_Nov_2024.Rmd
 The RMarkdown code file encompasses all the code used to analyse the dataset and generate the results presented in the paper and supplementary materials. Each section of the code is titled for ease of navigation, and comments within the code provide explanations and context. Before each statistical test, the assumptions are assessed and documented within the corresponding code chunk.
 Each code chunk in the RMarkdown file is clearly referenced to indicate where its results are presented in the paper, whether in the main text, figures, or tables. This cross-referencing ensures that readers can easily locate the source of each result and understand how it contributes to the findings of the research.
 
